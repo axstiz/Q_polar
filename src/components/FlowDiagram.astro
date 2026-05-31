@@ -74,7 +74,7 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   :global(.intro-dots.animate .intro-dot[data-dot="14"], .intro-dots-mirror.animate .intro-dot[data-dot="14"]) { animation-delay: 0.40s; }
   :global(.intro-dots.animate .intro-dot[data-dot="15"], .intro-dots-mirror.animate .intro-dot[data-dot="15"]) { animation-delay: 0.48s; }
 
-  /* ===== Ромбы Coal: анимация пульсации при hover ===== */
+  /* ===== Ромбы Coal: движение + исчезновение + возврат при hover ===== */
   :global(.coal-elements) {
     pointer-events: none;
   }
@@ -82,18 +82,32 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
     opacity: var(--diamond-base);
   }
 
-  @keyframes coalPulse {
-    0%, 100% { opacity: var(--diamond-base, 0.5); }
-    50% { opacity: calc(var(--diamond-base, 0.5) + 0.25); }
+  @keyframes coalMove {
+    0% {
+      opacity: var(--diamond-base);
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    30% {
+      opacity: 0;
+      transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(var(--scale));
+    }
+    31% {
+      opacity: 0;
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    65% {
+      opacity: var(--diamond-base);
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    100% {
+      opacity: var(--diamond-base);
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
   }
 
   :global(.coal-elements.animate .coal-diamond) {
-    animation: coalPulse 1.5s ease-in-out infinite;
+    animation: coalMove 1.8s ease-in-out infinite;
   }
-  :global(.coal-elements.animate .coal-diamond[data-diamond="1"]) { animation-delay: 0s; }
-  :global(.coal-elements.animate .coal-diamond[data-diamond="2"]) { animation-delay: 0.15s; }
-  :global(.coal-elements.animate .coal-diamond[data-diamond="3"]) { animation-delay: 0.30s; }
-  :global(.coal-elements.animate .coal-diamond[data-diamond="4"]) { animation-delay: 0.45s; }
 </style>
 
 <script>
