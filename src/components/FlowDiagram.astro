@@ -2,26 +2,18 @@
 /**
  * FlowDiagram.astro — Интерактивная схема сборника
  *
- * Использует оригинальный SVG из Excalidraw инлайн.
- * Блоки кликабельны → страницы стихов.
- * При наведении — glow-эффект + tooltip с превью.
+ * Оригинальный SVG из Excalidraw инлайн.
+ * Блок = пара <g>: border (path stroke #1e1e1e) + text.
+ * Hover: подсветка рамки (drop-shadow). Клик → страница стиха.
  */
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-// Читаем оригинальный SVG с встроенным Excalifont
 const svgPath = join(process.cwd(), 'main_schema.svg');
 const svgContent = readFileSync(svgPath, 'utf-8');
-
-// Извлекаем содержимое между <svg ...> и </svg>
 const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
-const svgAttrs = svgContent.match(/<svg([^>]*)>/)?.[1] || '';
 ---
 
-<!-- Tooltip -->
-<div id="diagram-tooltip" class="tooltip"></div>
-
-<!-- Интерактивная схема -->
 <div class="diagram-wrapper">
   <svg
     viewBox="0 0 2433 1520"
@@ -32,147 +24,136 @@ const svgAttrs = svgContent.match(/<svg([^>]*)>/)?.[1] || '';
 </div>
 
 <style>
-  .diagram-wrapper {
-    width: 100%;
-    margin: 0 auto;
-    position: relative;
-  }
+  .diagram-wrapper { width: 100%; margin: 0 auto; }
+  .flow-svg { width: 100%; height: auto; display: block; }
 
-  .flow-svg {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  /* Tooltip */
-  .tooltip {
-    position: fixed;
-    background: var(--bg);
-    border: 2.5px solid var(--border);
-    border-radius: 12px;
-    padding: 0.75rem 1rem;
-    font-family: var(--font-handwritten);
-    font-size: 1.2rem;
-    color: var(--text);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    z-index: 1000;
-    max-width: 300px;
-    box-shadow: 3px 3px 0 var(--border);
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-
-  .tooltip.visible {
-    opacity: 1;
-  }
-
-  :global(.block-group) {
+  /* Hover: только подсветка рамки, без движения */
+  :global(.block-border) {
     cursor: pointer;
+    transition: filter 0.2s ease;
+  }
+  :global(.block-border.hovered) {
+    filter: drop-shadow(0 0 8px rgba(103, 65, 217, 0.5));
+  }
+  :global(.block-text) {
+    cursor: pointer;
+    pointer-events: all;
   }
 
-  :global(.block-group:hover rect) {
-    filter: drop-shadow(0 0 10px rgba(103, 65, 217, 0.6));
-  }
-
-  :global(.block-group text) {
+  /* ===== Точки Intro: анимация волны при hover ===== */
+  :global(.intro-dots, .intro-dots-mirror) {
     pointer-events: none;
-    user-select: none;
   }
+
+  /* Базовое состояние: используем --dot-base */
+  :global(.intro-dots .intro-dot, .intro-dots-mirror .intro-dot) {
+    opacity: var(--dot-base, 0.5);
+  }
+
+  @keyframes dotWave {
+    0%, 100% { opacity: var(--dot-base, 0.5); }
+    50% { opacity: calc(var(--dot-base, 0.5) + 0.25); }
+  }
+
+  :global(.intro-dots.animate .intro-dot, .intro-dots-mirror.animate .intro-dot) {
+    animation: dotWave 1.2s ease-in-out infinite;
+  }
+  :global(.intro-dots.animate .intro-dot[data-dot="1"], .intro-dots-mirror.animate .intro-dot[data-dot="1"])  { animation-delay: 0s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="2"], .intro-dots-mirror.animate .intro-dot[data-dot="2"])  { animation-delay: 0.08s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="3"], .intro-dots-mirror.animate .intro-dot[data-dot="3"])  { animation-delay: 0.16s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="4"], .intro-dots-mirror.animate .intro-dot[data-dot="4"])  { animation-delay: 0.24s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="5"], .intro-dots-mirror.animate .intro-dot[data-dot="5"])  { animation-delay: 0.32s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="6"], .intro-dots-mirror.animate .intro-dot[data-dot="6"])  { animation-delay: 0.08s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="7"], .intro-dots-mirror.animate .intro-dot[data-dot="7"])  { animation-delay: 0.16s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="8"], .intro-dots-mirror.animate .intro-dot[data-dot="8"])  { animation-delay: 0.24s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="9"], .intro-dots-mirror.animate .intro-dot[data-dot="9"])  { animation-delay: 0.32s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="10"], .intro-dots-mirror.animate .intro-dot[data-dot="10"]) { animation-delay: 0.40s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="11"], .intro-dots-mirror.animate .intro-dot[data-dot="11"]) { animation-delay: 0.16s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="12"], .intro-dots-mirror.animate .intro-dot[data-dot="12"]) { animation-delay: 0.24s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="13"], .intro-dots-mirror.animate .intro-dot[data-dot="13"]) { animation-delay: 0.32s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="14"], .intro-dots-mirror.animate .intro-dot[data-dot="14"]) { animation-delay: 0.40s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="15"], .intro-dots-mirror.animate .intro-dot[data-dot="15"]) { animation-delay: 0.48s; }
 </style>
 
 <script>
-  /**
-   * Интерактивность блоков схемы:
-   * 1. Находим <text> элементы с названиями блоков
-   * 2. Их родительские <g> делаем кликабельными
-   * 3. Добавляем tooltip с превью стиха
-   */
-
-  // Карта блоков: текст → id стиха для URL
-  const blockMap: Record<string, string> = {
-    'Intro': 'intro',
-    'Coal': 'coal',
-    'Settings': 'settings',
-    'Blaze': 'blaze',
-    'Blue screen': 'blue-screen',
-    'Face id': 'face-id',
-    'tRace': 'trace',
-    'Лаstick': 'lastick',
-    'Collapse': 'collapse',
-  };
-
-  // Превью стихов для tooltip
-  const previews: Record<string, string> = {
-    'intro': 'Я на пьяном угаре рисую узоры / Сквозь темные волосы - звезды',
-    'coal': 'Тряска пустых сосудов / Под оглушающий бас',
-    'settings': 'Загружайся в абстракцию, дура / И вся симуляция канет под хвост',
-    'blaze': 'Без контекста пустые / Слова, я закидывал',
-    'blue-screen': 'Дуло, висок / Тебе кажутся выстрелы',
-    'face-id': 'Мозг не источник, а интерфейс / Червоточина глубже по дням',
-    'trace': 'Я боялся что выброшусь в море / Я хотел так увидеть рассвет',
-    'lastick': 'Информация - бред / Ты осколками памяти',
-    'collapse': 'Пустота не диагноз / А верный симптом',
-  };
-
   document.addEventListener('DOMContentLoaded', () => {
-    const tooltip = document.getElementById('diagram-tooltip');
     const svg = document.querySelector('.flow-svg');
-    if (!tooltip || !svg) return;
+    if (!svg) return;
 
-    // Находим все <text> элементы в SVG
-    const textElements = svg.querySelectorAll('text');
+    const blockMap: Record<string, string> = {
+      'Intro': 'intro',
+      'Coal': 'coal',
+      'Settings': 'settings',
+      'Blaze': 'blaze',
+      'Blue screen': 'blue-screen',
+      'Face id': 'face-id',
+      'tRace': 'trace',
+      'Лаstick': 'lastick',
+      'Collapse': 'collapse',
+    };
 
-    textElements.forEach((textEl) => {
+    // Находим все <text> элементы
+    const textEls = svg.querySelectorAll('text');
+
+    textEls.forEach((textEl) => {
       const text = textEl.textContent?.trim() || '';
       const blockId = blockMap[text];
       if (!blockId) return;
 
-      // Поднимаемся вверх по DOM до родительского <g> уровня блока
-      // Ищем <g> который содержит и текст, и рамку (rect с stroke)
-      let targetGroup = textEl.parentElement;
-      // Поднимаемся на 1-2 уровня вверх, чтобы найти группу блока
-      if (targetGroup && targetGroup.tagName === 'g') {
-        targetGroup = targetGroup.parentElement || targetGroup;
+      const textGroup = textEl.parentElement;
+      if (!textGroup || textGroup.tagName !== 'g') return;
+
+      // Ищем группу рамки — поднимаемся вверх по предыдущим sibling,
+      // пока не найдём <g> со stroke-linecap="round" (рамка)
+      let borderGroup: Element | null = null;
+      let sibling: Element | null = textGroup.previousElementSibling;
+      while (sibling) {
+        if (sibling.tagName === 'g' && sibling.getAttribute('stroke-linecap') === 'round') {
+          borderGroup = sibling;
+          break;
+        }
+        sibling = sibling.previousElementSibling;
       }
 
-      if (!targetGroup) return;
+      if (borderGroup) borderGroup.classList.add('block-border');
+      textGroup.classList.add('block-text');
 
-      // Добавляем класс и data-атрибуты
-      targetGroup.classList.add('block-group');
-      targetGroup.setAttribute('data-block-id', blockId);
-      targetGroup.setAttribute('data-block-title', text);
-      targetGroup.style.cursor = 'pointer';
+      const highlight = () => {
+        if (borderGroup) borderGroup.classList.add('hovered');
+      };
+      const unhighlight = () => {
+        if (borderGroup) borderGroup.classList.remove('hovered');
+      };
 
-      // Hover — показываем tooltip
-      targetGroup.addEventListener('mouseenter', () => {
-        const rect = targetGroup!.getBoundingClientRect();
-        const preview = previews[blockId] || '';
-        const previewLines = preview.split('/').map(l => l.trim()).join('<br/>');
-        tooltip.innerHTML = `<strong>${text}</strong><br/>${previewLines}`;
-        tooltip.style.left = `${rect.left + rect.width / 2}px`;
-        tooltip.style.top = `${rect.bottom + 12}px`;
-        tooltip.classList.add('visible');
-      });
+      if (borderGroup) {
+        borderGroup.addEventListener('mouseenter', highlight);
+        borderGroup.addEventListener('mouseleave', unhighlight);
+      }
+      textGroup.addEventListener('mouseenter', highlight);
+      textGroup.addEventListener('mouseleave', unhighlight);
 
-      targetGroup.addEventListener('mouseleave', () => {
-        tooltip.classList.remove('visible');
-      });
-
-      // Клик — переход на страницу стиха
-      targetGroup.addEventListener('click', () => {
+      const navigate = () => {
         const base = document.documentElement.dataset.base || '';
         window.location.href = `${base}/poems/${blockId}`;
-      });
+      };
 
-      targetGroup.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          const base = document.documentElement.dataset.base || '';
-          window.location.href = `${base}/poems/${blockId}`;
+      if (borderGroup) borderGroup.addEventListener('click', navigate);
+      textGroup.addEventListener('click', navigate);
+
+      // Intro: анимация точек при hover
+      if (blockId === 'intro') {
+        const dotGroups = svg.querySelectorAll('.intro-dots, .intro-dots-mirror');
+        if (dotGroups.length) {
+          const startDots = () => dotGroups.forEach(g => g.classList.add('animate'));
+          const stopDots = () => dotGroups.forEach(g => g.classList.remove('animate'));
+          if (borderGroup) {
+            borderGroup.addEventListener('mouseenter', startDots);
+            borderGroup.addEventListener('mouseleave', stopDots);
+          }
+          textGroup.addEventListener('mouseenter', startDots);
+          textGroup.addEventListener('mouseleave', stopDots);
         }
-      });
+      }
     });
   });
 </script>
