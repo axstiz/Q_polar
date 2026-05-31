@@ -135,6 +135,47 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   :global(.coal-elements.animate .coal-diamond[data-diamond="2"]) { animation-delay: -0.25s; }
   :global(.coal-elements.animate .coal-diamond[data-diamond="3"]) { animation-delay: -0.5s; }
   :global(.coal-elements.animate .coal-diamond[data-diamond="4"]) { animation-delay: -0.75s; }
+
+  /* ===== Settings: плавное появление красных/фиолетовых частиц ===== */
+  :global(.settings-effects) {
+    pointer-events: none;
+  }
+
+  @keyframes settingsRedPulse {
+    0%   { opacity: 0; }
+    10%  { opacity: var(--particle-base, 0.5); }
+    30%  { opacity: var(--particle-base, 0.5); }
+    40%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+  @keyframes settingsPurplePulse {
+    0%   { opacity: 0; }
+    45%  { opacity: 0; }
+    55%  { opacity: var(--particle-base, 0.3); }
+    75%  { opacity: var(--particle-base, 0.3); }
+    85%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  :global(.settings-effects.animate .settings-red) {
+    animation: settingsRedPulse 4s linear infinite;
+  }
+  :global(.settings-effects.animate .settings-purple) {
+    animation: settingsPurplePulse 4s linear infinite;
+  }
+
+  :global(.settings-effects.animate .settings-red[data-particle="0"])   { animation-delay: 0s; }
+  :global(.settings-effects.animate .settings-red[data-particle="1"])   { animation-delay: 0.08s; }
+  :global(.settings-effects.animate .settings-red[data-particle="2"])   { animation-delay: 0.16s; }
+  :global(.settings-effects.animate .settings-red[data-particle="3"])   { animation-delay: 0.24s; }
+  :global(.settings-effects.animate .settings-red[data-particle="4"])   { animation-delay: 0.32s; }
+  :global(.settings-effects.animate .settings-red[data-particle="5"])   { animation-delay: 0.40s; }
+  :global(.settings-effects.animate .settings-purple[data-particle="6"])  { animation-delay: 0s; }
+  :global(.settings-effects.animate .settings-purple[data-particle="7"])  { animation-delay: 0.08s; }
+  :global(.settings-effects.animate .settings-purple[data-particle="8"])  { animation-delay: 0.16s; }
+  :global(.settings-effects.animate .settings-purple[data-particle="9"])  { animation-delay: 0.24s; }
+  :global(.settings-effects.animate .settings-purple[data-particle="10"]) { animation-delay: 0.32s; }
+  :global(.settings-effects.animate .settings-purple[data-particle="11"]) { animation-delay: 0.40s; }
 </style>
 
 <script>
@@ -229,6 +270,21 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
           }
           textGroup.addEventListener('mouseenter', startDots);
           textGroup.addEventListener('mouseleave', stopDots);
+        }
+      }
+
+      // Settings: анимация частиц при hover
+      if (blockId === 'settings') {
+        const settingsGroup = svg.querySelector('.settings-effects');
+        if (settingsGroup) {
+          const startParticles = () => settingsGroup.classList.add('animate');
+          const stopParticles = () => settingsGroup.classList.remove('animate');
+          if (borderGroup) {
+            borderGroup.addEventListener('mouseenter', startParticles);
+            borderGroup.addEventListener('mouseleave', stopParticles);
+          }
+          textGroup.addEventListener('mouseenter', startParticles);
+          textGroup.addEventListener('mouseleave', stopParticles);
         }
       }
     });
