@@ -1,0 +1,19 @@
+---
+/**
+ * Страница стиха "tRase"
+ * Нижняя ветка: Face id → tRase → Lastick
+ */
+import PoemLayout from '../../layouts/PoemLayout.astro';
+import { getPoem, getNextPoems, getPrevPoems } from '../../data/poems';
+
+const poem = getPoem('trace')!;
+const nextPoems = getNextPoems('trace').map(p => ({ title: p.title, slug: p.slug }));
+const prevPoems = getPrevPoems('trace').map(p => ({ title: p.title, slug: p.slug }));
+---
+
+<PoemLayout
+  title={poem.title}
+  lines={poem.lines}
+  prevPoems={prevPoems}
+  nextPoems={nextPoems}
+/>

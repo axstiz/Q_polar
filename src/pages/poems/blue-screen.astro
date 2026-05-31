@@ -1,0 +1,19 @@
+---
+/**
+ * Страница стиха "Blue screen"
+ * Верхняя ветка: Blaze → Blue screen → Collapse
+ */
+import PoemLayout from '../../layouts/PoemLayout.astro';
+import { getPoem, getNextPoems, getPrevPoems } from '../../data/poems';
+
+const poem = getPoem('blue_screen')!;
+const nextPoems = getNextPoems('blue_screen').map(p => ({ title: p.title, slug: p.slug }));
+const prevPoems = getPrevPoems('blue_screen').map(p => ({ title: p.title, slug: p.slug }));
+---
+
+<PoemLayout
+  title={poem.title}
+  lines={poem.lines}
+  prevPoems={prevPoems}
+  nextPoems={nextPoems}
+/>

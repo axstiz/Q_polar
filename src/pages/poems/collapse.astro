@@ -1,0 +1,19 @@
+---
+/**
+ * Страница стиха "Collapse"
+ * Финальный блок: обе ветки сходятся сюда
+ */
+import PoemLayout from '../../layouts/PoemLayout.astro';
+import { getPoem, getNextPoems, getPrevPoems } from '../../data/poems';
+
+const poem = getPoem('collapse')!;
+const nextPoems = getNextPoems('collapse').map(p => ({ title: p.title, slug: p.slug }));
+const prevPoems = getPrevPoems('collapse').map(p => ({ title: p.title, slug: p.slug }));
+---
+
+<PoemLayout
+  title={poem.title}
+  lines={poem.lines}
+  prevPoems={prevPoems}
+  nextPoems={nextPoems}
+/>

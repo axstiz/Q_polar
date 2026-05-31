@@ -1,0 +1,347 @@
+/*
+ * Глобальные стили для сайта Q-polar
+ * Интерактивный сборник стихов
+ *
+ * Палитра основана на исходной схеме Excalidraw:
+ * - Кремовый фон (#fffce8)
+ * - Красный акцент (огонь, страсть)
+ * - Синий акцент (холод, код, технологии)
+ */
+
+/* Google Fonts: Caveat (рукописный) + Inter (текст) */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+
+/* ===== CSS-переменные ===== */
+:root {
+  /* Основные цвета — точная палитра из Excalidraw SVG */
+  --bg: #fffce8;
+  --bg-dark: #1a1a2e;
+  --text: #2d2d2d;
+  --text-light: #e0e0e0;
+
+  /* Акценты — как в оригинальной схеме */
+  --accent-red: #e03131;
+  --accent-red-glow: rgba(224, 49, 49, 0.4);
+  --accent-blue: #6741d9;
+  --accent-blue-glow: rgba(103, 65, 217, 0.4);
+  --accent-orange: #e08030;
+  --accent-purple: #9775fa;
+  --accent-purple-light: #d0bfff;
+
+  /* Рамки */
+  --border: #1e1e1e;
+  --border-width: 2.5px;
+
+  /* Шрифты */
+  --font-handwritten: 'Caveat', cursive;
+  --font-body: 'Inter', sans-serif;
+
+  /* Размеры */
+  --block-radius: 12px;
+  --max-width: 1400px;
+
+  /* Переходы */
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.4s ease;
+}
+
+/* ===== Сброс и базовые стили ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ===== Типографика ===== */
+h1, h2, h3 {
+  font-family: var(--font-handwritten);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-red);
+}
+
+/* ===== Контейнер ===== */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ===== Кнопка "Назад к схеме" ===== */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-handwritten);
+  font-size: 1.3rem;
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--block-radius);
+  transition: all var(--transition-fast);
+  margin-bottom: 2rem;
+}
+
+.back-link:hover {
+  background-color: var(--text);
+  color: var(--bg);
+}
+
+.back-link svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ===== CSS-анимации для блоков схемы ===== */
+
+/* Intro — солнце вращается, лучи пульсируют */
+@keyframes sunRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes sunPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* Coal — угли тлеют, оранжевое свечение пульсирует */
+@keyframes coalGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px var(--accent-orange));
+    opacity: 0.8;
+  }
+  50% {
+    filter: drop-shadow(0 0 12px var(--accent-orange));
+    opacity: 1;
+  }
+}
+
+/* Settings — мерцающие ползунки */
+@keyframes sliderMove {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+
+@keyframes toggleFlicker {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0.3; }
+}
+
+/* Blaze — пламя поднимается вверх */
+@keyframes flameRise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-20px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes flameFlicker {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  25% { transform: scaleY(1.1) scaleX(0.95); }
+  50% { transform: scaleY(0.9) scaleX(1.05); }
+  75% { transform: scaleY(1.05) scaleX(0.98); }
+}
+
+/* Blue screen — глитч-эффект */
+@keyframes glitchShift {
+  0%, 100% { transform: translate(0); filter: none; }
+  20% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+  40% { transform: translate(2px, -1px); filter: hue-rotate(-90deg); }
+  60% { transform: translate(-1px, -2px); filter: hue-rotate(45deg); }
+  80% { transform: translate(1px, 2px); filter: hue-rotate(-45deg); }
+}
+
+@keyframes rgbSplit {
+  0%, 100% {
+    text-shadow: none;
+  }
+  25% {
+    text-shadow: -2px 0 #ff0000, 2px 0 #0000ff;
+  }
+  50% {
+    text-shadow: 2px 0 #ff0000, -2px 0 #0000ff;
+  }
+  75% {
+    text-shadow: -1px 1px #ff0000, 1px -1px #0000ff;
+  }
+}
+
+/* Collapse — схлопывание/пульсация */
+@keyframes collapsePulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.95) rotate(-1deg);
+    opacity: 0.85;
+  }
+}
+
+/* Face id — глаза моргают */
+@keyframes blink {
+  0%, 45%, 55%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.1);
+  }
+}
+
+/* Trace — бегущие линии */
+@keyframes lineRun {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(200%);
+    opacity: 0;
+  }
+}
+
+/* Lastick — искры */
+@keyframes spark {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1) rotate(45deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0) rotate(90deg);
+    opacity: 0;
+  }
+}
+
+/* ===== Анимация появления строк стиха ===== */
+@keyframes lineAppear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.poem-line {
+  opacity: 0;
+  animation: lineAppear 0.5s ease forwards;
+}
+
+/* Пустые строки (паузы в стихе) */
+.poem-line.empty {
+  height: 1.2em;
+}
+
+/* ===== Tooltip — появляется ПОД блоком ===== */
+.tooltip {
+  position: fixed;
+  background: var(--bg);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--block-radius);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-handwritten);
+  font-size: 1.1rem;
+  color: var(--text);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 1000;
+  max-width: 280px;
+  box-shadow: 3px 3px 0 var(--border);
+  /* Центрируем относительно блока */
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.tooltip.visible {
+  opacity: 1;
+}
+
+/* ===== Стрелки навигации ===== */
+.nav-arrows {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(45, 45, 45, 0.2);
+}
+
+.nav-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-handwritten);
+  font-size: 1.2rem;
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--block-radius);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.nav-arrow:hover {
+  background-color: var(--text);
+  color: var(--bg);
+}
+
+.nav-arrow.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Тёмная тема отключена —始终保持 кремовый фон как на исходной схеме */

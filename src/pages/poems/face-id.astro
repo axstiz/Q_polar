@@ -1,0 +1,19 @@
+---
+/**
+ * Страница стиха "Face id"
+ * Нижняя ветка: Coal → Face id → tRase
+ */
+import PoemLayout from '../../layouts/PoemLayout.astro';
+import { getPoem, getNextPoems, getPrevPoems } from '../../data/poems';
+
+const poem = getPoem('face_id')!;
+const nextPoems = getNextPoems('face_id').map(p => ({ title: p.title, slug: p.slug }));
+const prevPoems = getPrevPoems('face_id').map(p => ({ title: p.title, slug: p.slug }));
+---
+
+<PoemLayout
+  title={poem.title}
+  lines={poem.lines}
+  prevPoems={prevPoems}
+  nextPoems={nextPoems}
+/>
