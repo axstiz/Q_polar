@@ -40,39 +40,61 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
     pointer-events: all;
   }
 
-  /* ===== Точки Intro: анимация волны при hover ===== */
+  /* ===== Точки Intro: анимация «стрелка» при hover ===== */
   :global(.intro-dots, .intro-dots-mirror) {
     pointer-events: none;
   }
 
-  /* Базовое состояние: используем --dot-base */
   :global(.intro-dots .intro-dot, .intro-dots-mirror .intro-dot) {
     opacity: var(--dot-base, 0.5);
   }
 
-  @keyframes dotWave {
-    0%, 100% { opacity: var(--dot-base, 0.5); }
-    50% { opacity: calc(var(--dot-base, 0.5) + 0.25); }
+  @keyframes dotFlowRight {
+    0%   { translate: 0 0;      fill: #ffccd5; opacity: var(--dot-base, 0.5); }
+    40%  { translate: 16px 0;   fill: #e03131; opacity: calc(var(--dot-base, 0.5) + 0.4); }
+    60%  { translate: 0 0;      fill: #e03131; opacity: var(--dot-base, 0.5); }
+    65%  { translate: 0 0;      fill: #ffccd5; opacity: var(--dot-base, 0.5); }
+    100% { translate: 0 0;      fill: #ffccd5; opacity: var(--dot-base, 0.5); }
   }
 
-  :global(.intro-dots.animate .intro-dot, .intro-dots-mirror.animate .intro-dot) {
-    animation: dotWave 1.2s ease-in-out infinite;
+  :global(.intro-dots.animate .intro-dot) {
+    animation: dotFlowRight 2.5s linear infinite;
   }
-  :global(.intro-dots.animate .intro-dot[data-dot="1"], .intro-dots-mirror.animate .intro-dot[data-dot="1"])  { animation-delay: 0s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="2"], .intro-dots-mirror.animate .intro-dot[data-dot="2"])  { animation-delay: 0.08s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="3"], .intro-dots-mirror.animate .intro-dot[data-dot="3"])  { animation-delay: 0.16s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="4"], .intro-dots-mirror.animate .intro-dot[data-dot="4"])  { animation-delay: 0.24s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="5"], .intro-dots-mirror.animate .intro-dot[data-dot="5"])  { animation-delay: 0.32s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="6"], .intro-dots-mirror.animate .intro-dot[data-dot="6"])  { animation-delay: 0.08s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="7"], .intro-dots-mirror.animate .intro-dot[data-dot="7"])  { animation-delay: 0.16s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="8"], .intro-dots-mirror.animate .intro-dot[data-dot="8"])  { animation-delay: 0.24s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="9"], .intro-dots-mirror.animate .intro-dot[data-dot="9"])  { animation-delay: 0.32s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="10"], .intro-dots-mirror.animate .intro-dot[data-dot="10"]) { animation-delay: 0.40s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="11"], .intro-dots-mirror.animate .intro-dot[data-dot="11"]) { animation-delay: 0.16s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="12"], .intro-dots-mirror.animate .intro-dot[data-dot="12"]) { animation-delay: 0.24s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="13"], .intro-dots-mirror.animate .intro-dot[data-dot="13"]) { animation-delay: 0.32s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="14"], .intro-dots-mirror.animate .intro-dot[data-dot="14"]) { animation-delay: 0.40s; }
-  :global(.intro-dots.animate .intro-dot[data-dot="15"], .intro-dots-mirror.animate .intro-dot[data-dot="15"]) { animation-delay: 0.48s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="1"])  { animation-delay: 0s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="2"])  { animation-delay: 0.08s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="3"])  { animation-delay: 0.16s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="4"])  { animation-delay: 0.24s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="5"])  { animation-delay: 0.32s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="6"])  { animation-delay: 0.08s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="7"])  { animation-delay: 0.16s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="8"])  { animation-delay: 0.24s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="9"])  { animation-delay: 0.32s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="10"]) { animation-delay: 0.40s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="11"]) { animation-delay: 0.16s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="12"]) { animation-delay: 0.24s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="13"]) { animation-delay: 0.32s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="14"]) { animation-delay: 0.40s; }
+  :global(.intro-dots.animate .intro-dot[data-dot="15"]) { animation-delay: 0.48s; }
+
+  /* Mirror — в противоположную сторону */
+  :global(.intro-dots-mirror.animate .intro-dot) {
+    animation: dotFlowRight 2.5s linear infinite;
+  }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="1"])  { animation-delay: -0.48s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="2"])  { animation-delay: -0.40s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="3"])  { animation-delay: -0.32s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="4"])  { animation-delay: -0.24s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="5"])  { animation-delay: -0.16s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="6"])  { animation-delay: -0.40s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="7"])  { animation-delay: -0.32s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="8"])  { animation-delay: -0.24s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="9"])  { animation-delay: -0.16s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="10"]) { animation-delay: -0.08s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="11"]) { animation-delay: -0.32s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="12"]) { animation-delay: -0.24s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="13"]) { animation-delay: -0.16s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="14"]) { animation-delay: -0.08s; }
+  :global(.intro-dots-mirror.animate .intro-dot[data-dot="15"]) { animation-delay: 0s; }
 
   /* ===== Ромбы Coal: движение + исчезновение + возврат при hover ===== */
   :global(.coal-elements) {
