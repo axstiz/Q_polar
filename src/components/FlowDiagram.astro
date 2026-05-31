@@ -243,6 +243,20 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   :global(.face-id-effects.unlocked ~ .face-lock-under .face-lock-shackle) {
     animation: shackleUnlock 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
+
+  :global(.trace-border-line) {
+    stroke: #b71c1c;
+    stroke-width: 3;
+    stroke-dasharray: 729;
+    stroke-dashoffset: 729;
+    filter: drop-shadow(0 0 8px rgba(183, 28, 28, 0.8)) drop-shadow(0 0 4px rgba(183, 28, 28, 0.5));
+    opacity: 0;
+    transition: stroke-dashoffset 1.5s ease-in-out, opacity 0.1s ease;
+  }
+  :global(.trace-border-line.animate) {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
 </style>
 
 <script>
@@ -352,6 +366,22 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
           }
           textGroup.addEventListener('mouseenter', startParticles);
           textGroup.addEventListener('mouseleave', stopParticles);
+        }
+      }
+
+      // tRace: анимация трассировки контура при hover
+      if (blockId === 'trace') {
+        const traceLine = svg.querySelector('.trace-border-line');
+        if (traceLine) {
+          const parentGroup = traceLine.parentElement;
+          const startTrace = () => traceLine.classList.add('animate');
+          const stopTrace = () => traceLine.classList.remove('animate');
+          if (parentGroup) {
+            parentGroup.addEventListener('mouseenter', startTrace);
+            parentGroup.addEventListener('mouseleave', stopTrace);
+          }
+          textGroup.addEventListener('mouseenter', startTrace);
+          textGroup.addEventListener('mouseleave', stopTrace);
         }
       }
 
