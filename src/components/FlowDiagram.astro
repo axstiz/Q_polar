@@ -73,6 +73,27 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   :global(.intro-dots.animate .intro-dot[data-dot="13"], .intro-dots-mirror.animate .intro-dot[data-dot="13"]) { animation-delay: 0.32s; }
   :global(.intro-dots.animate .intro-dot[data-dot="14"], .intro-dots-mirror.animate .intro-dot[data-dot="14"]) { animation-delay: 0.40s; }
   :global(.intro-dots.animate .intro-dot[data-dot="15"], .intro-dots-mirror.animate .intro-dot[data-dot="15"]) { animation-delay: 0.48s; }
+
+  /* ===== Ромбы Coal: анимация пульсации при hover ===== */
+  :global(.coal-elements) {
+    pointer-events: none;
+  }
+  :global(.coal-elements .coal-diamond) {
+    opacity: var(--diamond-base);
+  }
+
+  @keyframes coalPulse {
+    0%, 100% { opacity: var(--diamond-base, 0.5); }
+    50% { opacity: calc(var(--diamond-base, 0.5) + 0.25); }
+  }
+
+  :global(.coal-elements.animate .coal-diamond) {
+    animation: coalPulse 1.5s ease-in-out infinite;
+  }
+  :global(.coal-elements.animate .coal-diamond[data-diamond="1"]) { animation-delay: 0s; }
+  :global(.coal-elements.animate .coal-diamond[data-diamond="2"]) { animation-delay: 0.15s; }
+  :global(.coal-elements.animate .coal-diamond[data-diamond="3"]) { animation-delay: 0.30s; }
+  :global(.coal-elements.animate .coal-diamond[data-diamond="4"]) { animation-delay: 0.45s; }
 </style>
 
 <script>
@@ -139,6 +160,21 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
 
       if (borderGroup) borderGroup.addEventListener('click', navigate);
       textGroup.addEventListener('click', navigate);
+
+      // Coal: анимация ромбов при hover
+      if (blockId === 'coal') {
+        const coalGroup = svg.querySelector('.coal-elements');
+        if (coalGroup) {
+          const startCoal = () => coalGroup.classList.add('animate');
+          const stopCoal = () => coalGroup.classList.remove('animate');
+          if (borderGroup) {
+            borderGroup.addEventListener('mouseenter', startCoal);
+            borderGroup.addEventListener('mouseleave', stopCoal);
+          }
+          textGroup.addEventListener('mouseenter', startCoal);
+          textGroup.addEventListener('mouseleave', stopCoal);
+        }
+      }
 
       // Intro: анимация точек при hover
       if (blockId === 'intro') {
