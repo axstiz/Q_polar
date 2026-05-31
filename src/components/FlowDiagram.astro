@@ -177,6 +177,44 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   :global(.settings-effects.animate .settings-purple[data-particle="10"]) { animation-delay: 0.32s; }
   :global(.settings-effects.animate .settings-purple[data-particle="11"]) { animation-delay: 0.40s; }
   :global(.settings-effects.animate .settings-purple[data-particle="12"]) { animation-delay: 0.48s; }
+
+  /* ===== Face id: сканирующая линия + сетка точек ===== */
+  :global(.face-id-effects) {
+    pointer-events: none;
+  }
+
+  @keyframes faceScanLine {
+    0%   { transform: translateY(-5px); opacity: 0; }
+    3%   { opacity: 0.9; }
+    47%  { opacity: 0.9; }
+    50%  { opacity: 0; transform: translateY(156.8px); }
+    100% { opacity: 0; transform: translateY(156.8px); }
+  }
+  @keyframes faceDotPulse {
+    0%, 18%   { opacity: var(--face-dot-base, 0.3); r: 2; }
+    22%, 38%  { opacity: var(--face-dot-peak, 0.9); r: 2.5; }
+    42%, 100% { opacity: var(--face-dot-base, 0.3); r: 2; }
+  }
+
+  :global(.face-id-effects.animate .face-scan-line) {
+    animation: faceScanLine 3s linear infinite;
+  }
+  :global(.face-id-effects.animate .face-scan-line-red) {
+    animation: faceScanLine 3s linear infinite;
+  }
+  :global(.face-id-effects.animate .face-dot) {
+    animation: faceDotPulse 3s linear infinite;
+  }
+  :global(.face-id-effects.animate .face-dot-red) {
+    --face-dot-base: 0.15;
+    --face-dot-peak: 0.6;
+  }
+
+  :global(.face-id-effects.animate .face-dot[data-row="0"]) { animation-delay: 0s; }
+  :global(.face-id-effects.animate .face-dot[data-row="1"]) { animation-delay: 0.6s; }
+  :global(.face-id-effects.animate .face-dot[data-row="2"]) { animation-delay: 1.2s; }
+  :global(.face-id-effects.animate .face-dot[data-row="3"]) { animation-delay: 1.8s; }
+  :global(.face-id-effects.animate .face-dot[data-row="4"]) { animation-delay: 2.4s; }
 </style>
 
 <script>
@@ -286,6 +324,21 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
           }
           textGroup.addEventListener('mouseenter', startParticles);
           textGroup.addEventListener('mouseleave', stopParticles);
+        }
+      }
+
+      // Face id: анимация сканирования при hover
+      if (blockId === 'face-id') {
+        const faceIdGroup = svg.querySelector('.face-id-effects');
+        if (faceIdGroup) {
+          const startScan = () => faceIdGroup.classList.add('animate');
+          const stopScan = () => faceIdGroup.classList.remove('animate');
+          if (borderGroup) {
+            borderGroup.addEventListener('mouseenter', startScan);
+            borderGroup.addEventListener('mouseleave', stopScan);
+          }
+          textGroup.addEventListener('mouseenter', startScan);
+          textGroup.addEventListener('mouseleave', stopScan);
         }
       }
     });
