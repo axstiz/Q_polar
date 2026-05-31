@@ -257,6 +257,22 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
     stroke-dashoffset: 0;
     opacity: 1;
   }
+
+  @keyframes bloodDrop {
+    0%   { opacity: 0; transform: translateY(-20px) scale(0.3); }
+    15%  { opacity: 1; transform: translateY(2px) scale(1.15); }
+    25%  { transform: translateY(0) scale(1); }
+    60%  { transform: translateY(250px); }
+    85%  { opacity: 1; transform: translateY(380px); }
+    100% { opacity: 0; transform: translateY(420px); }
+  }
+  :global(.trace-blood-drop) {
+    pointer-events: none;
+    opacity: 0;
+  }
+  :global(.trace-blood-drop.animate) {
+    animation: bloodDrop 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
 </style>
 
 <script>
@@ -369,13 +385,39 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
         }
       }
 
-      // tRace: анимация трассировки контура при hover
+      // tRace: анимация трассировки контура + капля при hover
       if (blockId === 'trace') {
         const traceLine = svg.querySelector('.trace-border-line');
+        const bloodDrop = svg.querySelector('.trace-blood-drop');
+        const bloodWrapper = svg.querySelector('.trace-blood-wrapper');
         if (traceLine) {
+          let dropTimer = null;
+
+          const getTraceBorderPos = () => {
+            const tr = traceLine.parentElement.getAttribute('transform');
+            const m = tr.match(/translate\(([\d.]+),\s*([\d.]+)\)/);
+            if (m) return { bx: parseFloat(m[1]), by: parseFloat(m[2]), bw: 235.2, bh: 156.8 };
+            return { bx: 1255.79, by: 805.14, bw: 235.2, bh: 156.8 };
+          };
+
+          const startTrace = () => {
+            traceLine.classList.add('animate');
+            // случайная X по низу блока
+            if (bloodWrapper) {
+              const { bx, by, bw } = getTraceBorderPos();
+              const randX = bx + Math.random() * bw;
+              bloodWrapper.setAttribute('transform', `translate(${randX}, ${by + bw * 0.65 + 18})`);
+            }
+            dropTimer = setTimeout(() => {
+              if (bloodDrop) bloodDrop.classList.add('animate');
+            }, 1500);
+          };
+          const stopTrace = () => {
+            traceLine.classList.remove('animate');
+            if (bloodDrop) bloodDrop.classList.remove('animate');
+            if (dropTimer) { clearTimeout(dropTimer); dropTimer = null; }
+          };
           const parentGroup = traceLine.parentElement;
-          const startTrace = () => traceLine.classList.add('animate');
-          const stopTrace = () => traceLine.classList.remove('animate');
           if (parentGroup) {
             parentGroup.addEventListener('mouseenter', startTrace);
             parentGroup.addEventListener('mouseleave', stopTrace);
