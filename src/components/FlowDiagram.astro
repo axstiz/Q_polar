@@ -215,6 +215,34 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   :global(.face-id-effects.animate .face-dot[data-row="2"]) { animation-delay: 1.2s; }
   :global(.face-id-effects.animate .face-dot[data-row="3"]) { animation-delay: 1.8s; }
   :global(.face-id-effects.animate .face-dot[data-row="4"]) { animation-delay: 2.4s; }
+
+  @keyframes lockBounceIn {
+    0%   { opacity: 0; transform: scale(0.3); }
+    40%  { opacity: 1; transform: scale(1.15); }
+    65%  { transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shackleUnlock {
+    0%   { transform: rotate(0deg) translateY(0); }
+    35%  { transform: rotate(-45deg) translateY(-10px); }
+    55%  { transform: rotate(-30deg) translateY(-4px); }
+    75%  { transform: rotate(-38deg) translateY(-7px); }
+    100% { transform: rotate(-35deg) translateY(-6px); }
+  }
+
+  :global(.face-lock-under .face-lock-group) {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  :global(.face-id-effects.unlocked ~ .face-lock-under .face-lock-group) {
+    animation: lockBounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  :global(.face-lock-under .face-lock-shackle) {
+    transform-origin: 0px -13px;
+  }
+  :global(.face-id-effects.unlocked ~ .face-lock-under .face-lock-shackle) {
+    animation: shackleUnlock 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
 </style>
 
 <script>
@@ -327,12 +355,22 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
         }
       }
 
-      // Face id: анимация сканирования при hover
+      // Face id: анимация сканирования + замок при hover
       if (blockId === 'face-id') {
         const faceIdGroup = svg.querySelector('.face-id-effects');
         if (faceIdGroup) {
-          const startScan = () => faceIdGroup.classList.add('animate');
-          const stopScan = () => faceIdGroup.classList.remove('animate');
+          let lockTimer = null;
+          const startScan = () => {
+            faceIdGroup.classList.add('animate');
+            lockTimer = setTimeout(() => {
+              faceIdGroup.classList.add('unlocked');
+            }, 1500);
+          };
+          const stopScan = () => {
+            faceIdGroup.classList.remove('animate');
+            faceIdGroup.classList.remove('unlocked');
+            if (lockTimer) { clearTimeout(lockTimer); lockTimer = null; }
+          };
           if (borderGroup) {
             borderGroup.addEventListener('mouseenter', startScan);
             borderGroup.addEventListener('mouseleave', stopScan);
