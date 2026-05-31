@@ -58,7 +58,7 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   }
 
   :global(.intro-dots.animate .intro-dot) {
-    animation: dotFlowRight 2.5s linear infinite;
+    animation: dotFlowRight 2s linear infinite;
   }
   :global(.intro-dots.animate .intro-dot[data-dot="1"])  { animation-delay: 0s; }
   :global(.intro-dots.animate .intro-dot[data-dot="2"])  { animation-delay: 0.08s; }
@@ -78,7 +78,7 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
 
   /* Mirror — в противоположную сторону */
   :global(.intro-dots-mirror.animate .intro-dot) {
-    animation: dotFlowRight 2.5s linear infinite;
+    animation: dotFlowRight 2s linear infinite;
   }
   :global(.intro-dots-mirror.animate .intro-dot[data-dot="1"])  { animation-delay: -0.48s; }
   :global(.intro-dots-mirror.animate .intro-dot[data-dot="2"])  { animation-delay: -0.40s; }
