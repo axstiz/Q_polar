@@ -83,31 +83,28 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   }
 
   @keyframes coalMove {
-    0% {
-      opacity: var(--diamond-base);
-      transform: translate(0, 0) rotate(0deg) scale(1);
-    }
-    30% {
-      opacity: 0;
-      transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(var(--scale));
-    }
-    31% {
-      opacity: 0;
-      transform: translate(0, 0) rotate(0deg) scale(1);
-    }
-    65% {
-      opacity: var(--diamond-base);
-      transform: translate(0, 0) rotate(0deg) scale(1);
-    }
-    100% {
-      opacity: var(--diamond-base);
-      transform: translate(0, 0) rotate(0deg) scale(1);
-    }
+    0%   { opacity: var(--diamond-base); transform: translate(0, 0) rotate(0deg) scale(1); }
+    12%  { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(var(--scale)); }
+    13%  { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(1); }
+    25%  { opacity: var(--diamond-base); transform: translate(0, 0) rotate(0deg) scale(1); }
+    37%  { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(var(--scale)); }
+    38%  { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(1); }
+    50%  { opacity: var(--diamond-base); transform: translate(0, 0) rotate(0deg) scale(1); }
+    62%  { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(var(--scale)); }
+    63%  { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(1); }
+    75%  { opacity: var(--diamond-base); transform: translate(0, 0) rotate(0deg) scale(1); }
+    87%  { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(var(--scale)); }
+    88%  { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(1); }
+    100% { opacity: var(--diamond-base); transform: translate(0, 0) rotate(0deg) scale(1); }
   }
 
   :global(.coal-elements.animate .coal-diamond) {
-    animation: coalMove 1.8s ease-in-out infinite;
+    animation: coalMove 1.8s linear infinite;
   }
+  :global(.coal-elements.animate .coal-diamond[data-diamond="1"]) { animation-delay: 0s; }
+  :global(.coal-elements.animate .coal-diamond[data-diamond="2"]) { animation-delay: -0.1125s; }
+  :global(.coal-elements.animate .coal-diamond[data-diamond="3"]) { animation-delay: -0.225s; }
+  :global(.coal-elements.animate .coal-diamond[data-diamond="4"]) { animation-delay: -0.3375s; }
 </style>
 
 <script>
