@@ -406,19 +406,21 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
         }
       }
 
-      // Blaze: анимация языков пламени при hover
+      // Blaze: анимация языков пламени + лужа при hover
       if (blockId === 'blaze') {
         const blazeFlames = svg.querySelector('.blaze-flames');
-        if (blazeFlames) {
-          const startFlames = () => blazeFlames.classList.add('animate');
-          const stopFlames = () => blazeFlames.classList.remove('animate');
-          if (borderGroup) {
-            borderGroup.addEventListener('mouseenter', startFlames);
-            borderGroup.addEventListener('mouseleave', stopFlames);
-          }
-          textGroup.addEventListener('mouseenter', startFlames);
-          textGroup.addEventListener('mouseleave', stopFlames);
+        const startBlaze = () => {
+          if (blazeFlames) blazeFlames.classList.add('animate');
+        };
+        const stopBlaze = () => {
+          if (blazeFlames) blazeFlames.classList.remove('animate');
+        };
+        if (borderGroup) {
+          borderGroup.addEventListener('mouseenter', startBlaze);
+          borderGroup.addEventListener('mouseleave', stopBlaze);
         }
+        textGroup.addEventListener('mouseenter', startBlaze);
+        textGroup.addEventListener('mouseleave', stopBlaze);
       }
 
       // tRace: анимация трассировки контура + капля при hover
