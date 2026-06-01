@@ -273,6 +273,27 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   :global(.trace-blood-drop.animate) {
     animation: bloodDrop 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
+
+  @keyframes flameFlicker {
+    0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.6; }
+    25%  { transform: scaleY(1.15) scaleX(0.9); opacity: 1; }
+    50%  { transform: scaleY(0.85) scaleX(1.06); opacity: 0.4; }
+    75%  { transform: scaleY(1.08) scaleX(0.95); opacity: 0.85; }
+  }
+  :global(.blaze-flames) {
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  :global(.blaze-flames.animate) {
+    opacity: 1;
+  }
+  :global(.blaze-flame-path) {
+    transform-origin: 0px 0px;
+    animation: flameFlicker var(--dur, 1.5s) ease-in-out infinite;
+    animation-delay: var(--d, 0s);
+    filter: drop-shadow(0 0 6px rgba(224, 49, 49, 0.6)) drop-shadow(0 0 12px rgba(224, 49, 49, 0.3));
+  }
 </style>
 
 <script>
@@ -382,6 +403,21 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
           }
           textGroup.addEventListener('mouseenter', startParticles);
           textGroup.addEventListener('mouseleave', stopParticles);
+        }
+      }
+
+      // Blaze: анимация языков пламени при hover
+      if (blockId === 'blaze') {
+        const blazeFlames = svg.querySelector('.blaze-flames');
+        if (blazeFlames) {
+          const startFlames = () => blazeFlames.classList.add('animate');
+          const stopFlames = () => blazeFlames.classList.remove('animate');
+          if (borderGroup) {
+            borderGroup.addEventListener('mouseenter', startFlames);
+            borderGroup.addEventListener('mouseleave', stopFlames);
+          }
+          textGroup.addEventListener('mouseenter', startFlames);
+          textGroup.addEventListener('mouseleave', stopFlames);
         }
       }
 
