@@ -8,8 +8,14 @@
  * - Синий акцент (холод, код, технологии)
  */
 
-/* Google Fonts: Caveat (рукописный) + Inter (текст) */
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+/* Excalifont — рукописный шрифт из Excalidraw для всего сайта */
+@font-face {
+  font-family: 'Excalifont';
+  src: url('/fonts/Excalifont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ===== CSS-переменные ===== */
 :root {
@@ -33,8 +39,8 @@
   --border-width: 2.5px;
 
   /* Шрифты */
-  --font-handwritten: 'Caveat', cursive;
-  --font-body: 'Inter', sans-serif;
+  --font-handwritten: 'Excalifont', cursive;
+  --font-body: 'Excalifont', sans-serif;
 
   /* Размеры */
   --block-radius: 12px;
