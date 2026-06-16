@@ -35,6 +35,12 @@
   <path class="bs-crack" style="--d: 0.35s; --g: 0.95" d="M166,78 Q80,65 50,70 T-5,60" fill="none" stroke="#6741d9" stroke-width="1.5" stroke-opacity="0.7"/>
   <path class="bs-crack" style="--d: 0.08s; --g: 0.15" d="M110,30 Q100,20 95,8" fill="none" stroke="#6741d9" stroke-width="1" stroke-opacity="0.45"/>
   <path class="bs-crack" style="--d: 0.18s; --g: 0.4" d="M240,30 Q250,18 258,8" fill="none" stroke="#6741d9" stroke-width="1" stroke-opacity="0.45"/>
+  <path class="bs-crack-alt" style="--d: 1.6s" d="M166,78 Q148,15 128,-5 T85,-30" fill="none" stroke="#e03131" stroke-width="1.2" stroke-opacity="0"/>
+  <path class="bs-crack-alt" style="--d: 1.8s" d="M166,78 Q235,25 278,15 T350,5" fill="none" stroke="#e03131" stroke-width="1.2" stroke-opacity="0"/>
+  <path class="bs-crack-alt" style="--d: 2.0s" d="M166,78 Q255,95 290,120 T350,155" fill="none" stroke="#6741d9" stroke-width="1.2" stroke-opacity="0"/>
+  <path class="bs-crack-alt" style="--d: 2.2s" d="M166,78 Q115,130 80,160 T20,200" fill="none" stroke="#6741d9" stroke-width="1.2" stroke-opacity="0"/>
+  <path class="bs-crack-alt" style="--d: 2.4s" d="M166,78 Q55,42 20,38 T-30,20" fill="none" stroke="#e03131" stroke-width="1.2" stroke-opacity="0"/>
+  <path class="bs-crack-alt" style="--d: 2.6s" d="M166,78 Q200,105 225,140 T265,185" fill="none" stroke="#6741d9" stroke-width="1" stroke-opacity="0"/>
   <text class="bs-sad-smiley" x="315" y="178" text-anchor="middle" dominant-baseline="central" font-family="Excalifont, Xiaolai, sans-serif, Segoe UI Emoji" font-size="36" fill="#e03131">:(</text>
 </g>
 <g class="bs-scan-artifacts" pointer-events="none">

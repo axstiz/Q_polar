@@ -313,19 +313,90 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   }
   :global(.blue-screen-effects.animate) {
     opacity: 1;
+    animation: bsPulse 3.5s ease-in-out infinite;
   }
+  @keyframes bsPulse {
+    0%, 100% { filter: none; }
+    50%      { filter: drop-shadow(0 0 4px rgba(103, 65, 217, 0.35)); }
+  }
+
   :global(.bs-crack) {
     stroke-dasharray: 500;
     stroke-dashoffset: 500;
   }
   :global(.blue-screen-effects.animate .bs-crack) {
-    animation-name: crackGrow, crackGlitch;
-    animation-duration: 0.5s, 1.8s;
-    animation-timing-function: ease-out, step-end;
-    animation-delay: var(--d, 0s), calc(var(--g, 0s) + 0.5s);
+    animation-name: crackGrow, crackEvolve, crackColorPulse;
+    animation-duration: 0.5s, 5s, 3.5s;
+    animation-timing-function: ease-out, ease-in-out, ease-in-out;
+    animation-delay: var(--d, 0s), calc(var(--d, 0s) + 0.5s), calc(var(--d, 0s) + 0.5s);
+    animation-fill-mode: forwards, none, none;
+    animation-iteration-count: 1, infinite, infinite;
+  }
+
+  @keyframes crackGrow {
+    0%   { stroke-dashoffset: 500; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  @keyframes crackEvolve {
+    0%   { stroke-dashoffset: 0; opacity: 0.7; transform: translate(0, 0); filter: none; }
+    /* glitch burst */
+    8%   { stroke-dashoffset: 0; opacity: 0.95; transform: translate(-5px, 1px); filter: drop-shadow(2px 0 #ff00ff) drop-shadow(-2px 0 #00ffff); }
+    12%  { stroke-dashoffset: 0; opacity: 0.35; transform: translate(3px, -1px); filter: none; }
+    15%  { stroke-dashoffset: 0; opacity: 0.7; transform: translate(0, 0); filter: none; }
+    /* partial retract — cracks die back */
+    30%  { stroke-dashoffset: 180; opacity: 0.45; }
+    /* re-grow */
+    48%  { stroke-dashoffset: 0; opacity: 0.8; }
+    /* second glitch burst */
+    53%  { stroke-dashoffset: 0; opacity: 0.25; transform: translate(4px, 2px); filter: drop-shadow(-3px 0 #00ffff); }
+    56%  { stroke-dashoffset: 0; opacity: 0.7; transform: translate(0, 0); filter: none; }
+    /* deeper retract */
+    72%  { stroke-dashoffset: 280; opacity: 0.3; }
+    /* re-stabilize */
+    90%  { stroke-dashoffset: 0; opacity: 0.7; }
+    100% { stroke-dashoffset: 0; opacity: 0.7; }
+  }
+
+  @keyframes crackColorPulse {
+    0%, 100% { stroke: #6741d9; }
+    30%      { stroke: #e03131; }
+    55%      { stroke: #e03131; }
+    80%      { stroke: #6741d9; }
+  }
+
+  /* Secondary cracks — appear later, different directions */
+  :global(.bs-crack-alt) {
+    stroke-dasharray: 350;
+    stroke-dashoffset: 350;
+  }
+  :global(.blue-screen-effects.animate .bs-crack-alt) {
+    animation-name: crackAltGrow, crackAltEvolve;
+    animation-duration: 0.8s, 4.5s;
+    animation-timing-function: ease-out, ease-in-out;
+    animation-delay: var(--d, 1.6s), calc(var(--d, 1.6s) + 0.8s);
     animation-fill-mode: forwards, none;
     animation-iteration-count: 1, infinite;
   }
+
+  @keyframes crackAltGrow {
+    0%   { stroke-dashoffset: 350; opacity: 0; }
+    100% { stroke-dashoffset: 0; opacity: 0.6; }
+  }
+
+  @keyframes crackAltEvolve {
+    0%   { stroke-dashoffset: 0; opacity: 0.6; transform: translate(0, 0); }
+    10%  { stroke-dashoffset: 0; opacity: 0.3; transform: translate(2px, -1px); }
+    13%  { stroke-dashoffset: 0; opacity: 0.6; transform: translate(0, 0); }
+    35%  { stroke-dashoffset: 140; opacity: 0.35; }
+    55%  { stroke-dashoffset: 0; opacity: 0.65; }
+    65%  { stroke-dashoffset: 0; opacity: 0.2; transform: translate(-2px, 1px); }
+    68%  { stroke-dashoffset: 0; opacity: 0.6; transform: translate(0, 0); }
+    85%  { stroke-dashoffset: 100; opacity: 0.3; }
+    100% { stroke-dashoffset: 0; opacity: 0.6; }
+  }
+
+  /* Smiley */
   :global(.blue-screen-effects.animate .bs-sad-smiley) {
     animation:
       smileyFade 0.6s ease-out 0.4s forwards,
@@ -351,27 +422,6 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
     40%  { opacity: 0.05; }
     75%  { opacity: 0.05; }
     90%  { opacity: 0.9; }
-  }
-  @keyframes crackGrow {
-    0%   { stroke-dashoffset: 500; }
-    100% { stroke-dashoffset: 0; }
-  }
-  @keyframes crackGlitch {
-    0%, 84%, 100% { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    2%  { transform: translate(-6px, 1px); opacity: 0.9; filter: drop-shadow(2px 0 #ff00ff) drop-shadow(-2px 0 #00ffff); }
-    4%  { transform: translate(4px, -1px); opacity: 0.2; filter: none; }
-    6%  { transform: translate(-2px, 2px); opacity: 0.9; filter: drop-shadow(3px 0 #ff00ff); }
-    8%  { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    14% { transform: translate(7px, 0); opacity: 0.3; filter: drop-shadow(-3px 0 #00ffff); }
-    16% { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    28% { transform: translate(-5px, -2px); opacity: 0.9; filter: drop-shadow(2px 0 #ff00ff) drop-shadow(-2px 0 #00ffff); }
-    30% { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    42% { transform: translate(6px, 1px); opacity: 0.15; }
-    44% { transform: translate(0, 0); opacity: 0.7; }
-    58% { transform: translate(-8px, 0); opacity: 0.9; filter: drop-shadow(4px 0 #ff00ff) drop-shadow(-3px 0 #00ffff); }
-    60% { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    72% { transform: translate(4px, -2px); opacity: 0.1; }
-    74% { transform: translate(0, 0); opacity: 0.7; }
   }
   @keyframes smileyFade {
     0%   { opacity: 0; }
