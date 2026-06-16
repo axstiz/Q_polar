@@ -16,4 +16,6 @@ const prevPoems = getPrevPoems('coal').map(p => ({ title: p.title, slug: p.slug 
   lines={poem.lines}
   prevPoems={prevPoems}
   nextPoems={nextPoems}
+  hologramId={poem.id}
+  branch={poem.branch}
 />

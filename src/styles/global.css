@@ -350,4 +350,56 @@ a:hover {
   pointer-events: none;
 }
 
+/* ===== Голограмма — вращающийся 3D-рисунок в стиле Excalidraw ===== */
+
+.poem-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 2rem;
+  align-items: start;
+  /* TODO: mobile — переключаться на 1 колонку */
+}
+
+.poem-content {
+  min-width: 0;
+}
+
+/* Панель голограммы */
+.hologram-panel {
+  position: sticky;
+  top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  /* TODO: mobile — скрывать */
+}
+
+/* Вьюпорт с перспективой */
+.hologram-viewport {
+  width: 280px;
+  height: 280px;
+  perspective: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* SVG с анимацией вращения */
+.hologram-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  transform-style: preserve-3d;
+  animation: hologramSpin 14s linear infinite;
+  filter: drop-shadow(0 0 8px var(--branch-color, var(--accent-blue)))
+          drop-shadow(0 0 20px var(--branch-color, var(--accent-blue)));
+  stroke: var(--branch-color, var(--accent-blue));
+}
+
+@keyframes hologramSpin {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
+}
+
 /* Тёмная тема отключена —始终保持 кремовый фон как на исходной схеме */

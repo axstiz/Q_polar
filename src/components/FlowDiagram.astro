@@ -14,6 +14,16 @@ const svgContent = readFileSync(svgPath, 'utf-8');
 const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
 ---
 
+<style is:global>
+  @font-face {
+    font-family: 'ExcalifontFull';
+    src: url('/Q_polar/fonts/Excalifont.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+</style>
+
 <div class="diagram-wrapper">
   <svg
     viewBox="0 0 2433 1520"
@@ -367,6 +377,19 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
     0%   { opacity: 0; }
     100% { opacity: 0.9; }
   }
+
+  /* ===== Lastick: стирание ME / появление I-666 при hover ===== */
+  :global(.lastick-label) {
+    pointer-events: none;
+  }
+  :global(.lastick-label .label-me) {
+    pointer-events: none;
+    font-family: 'ExcalifontFull', sans-serif;
+  }
+  :global(.lastick-label .label-eraser) {
+    pointer-events: none;
+    font-family: 'ExcalifontFull', sans-serif;
+  }
 </style>
 
 <script>
@@ -575,6 +598,72 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
           }
           textGroup.addEventListener('mouseenter', startScan);
           textGroup.addEventListener('mouseleave', stopScan);
+        }
+      }
+
+      // Lastick: ME erase + eraser tied to same progress via JS
+      if (blockId === 'lastick') {
+        const lastickLabel = svg.querySelector('.lastick-label');
+        const meText = lastickLabel?.querySelector('.label-me');
+        const eraserGroup = lastickLabel?.querySelector('.label-eraser');
+        if (lastickLabel && meText && eraserGroup) {
+          let progress = 0;
+          let target = 0;
+          let animFrame = null;
+          const DURATION = 1000;
+          const ERASER_MIN = -100;
+          const ERASER_MAX = 140;
+          const DELAY = 0;
+          let delayTimer = null;
+          let lastTime = 0;
+
+          const tick = (now) => {
+            if (!lastTime) lastTime = now;
+            const dt = now - lastTime;
+            lastTime = now;
+
+            const dir = target > progress ? 1 : -1;
+            const step = dt / DURATION;
+            progress = Math.max(0, Math.min(1, progress + dir * step));
+
+            const eraserX = ERASER_MIN + (ERASER_MAX - ERASER_MIN) * progress;
+            eraserGroup.setAttribute('transform', `translate(${eraserX}, 0)`);
+            eraserGroup.setAttribute('opacity', Math.min(1, progress * 3));
+
+            meText.style.clipPath = `inset(0 0 0 ${progress * 100}%)`;
+            meText.style.opacity = progress < 0.05 ? 1 : 1 - progress;
+
+            if (progress !== target) {
+              animFrame = requestAnimationFrame(tick);
+            } else {
+              animFrame = null;
+              if (target === 0) {
+                meText.style.opacity = 1;
+                meText.style.clipPath = 'inset(0 0 0 0)';
+              }
+            }
+          };
+
+          const start = () => {
+            if (delayTimer) { clearTimeout(delayTimer); delayTimer = null; }
+            target = 1;
+            if (!animFrame) { lastTime = 0; animFrame = requestAnimationFrame(tick); }
+          };
+
+          const stop = () => {
+            target = 0;
+            if (delayTimer) clearTimeout(delayTimer);
+            delayTimer = setTimeout(() => {
+              if (!animFrame) { lastTime = 0; animFrame = requestAnimationFrame(tick); }
+            }, DELAY);
+          };
+
+          if (borderGroup) {
+            borderGroup.addEventListener('mouseenter', start);
+            borderGroup.addEventListener('mouseleave', stop);
+          }
+          textGroup.addEventListener('mouseenter', start);
+          textGroup.addEventListener('mouseleave', stop);
         }
       }
     });
