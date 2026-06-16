@@ -601,6 +601,100 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
         }
       }
 
+      // Collapse: 7 border copies that grow out on hover with random drift
+      if (blockId === 'collapse') {
+        if (!svg._collapseInit) {
+          svg._collapseInit = true;
+          const clones = [];
+          const cloneCount = 7;
+          const opacities = [0.55, 0.45, 0.36, 0.28, 0.21, 0.15, 0.10];
+          let collapseFrame = null;
+          let collapseActive = false;
+          const cloneOffsets = [];
+          const cloneTargets = [];
+
+          const container = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          container.classList.add('collapse-echoes');
+          container.style.pointerEvents = 'none';
+          svg.appendChild(container);
+
+          const borderTransform = borderGroup.getAttribute('transform') || '';
+          const centerX = 117.6;
+          const centerY = 78.4;
+
+          for (let i = 0; i < cloneCount; i++) {
+            const clone = borderGroup.cloneNode(true);
+            clone.removeAttribute('class');
+            clone.style.opacity = '0';
+            clone.style.transition = 'none';
+            container.appendChild(clone);
+            clones.push(clone);
+            cloneOffsets.push({ x: 0, y: 0 });
+            cloneTargets.push({ x: 0, y: 0 });
+          }
+
+          let collapseTime = 0;
+          const DRIFT_MAX = 10;
+
+          const collapseTick = (now) => {
+            if (!collapseTime) collapseTime = now;
+            const elapsed = now - collapseTime;
+            collapseTime = now;
+
+            for (let i = 0; i < cloneCount; i++) {
+              if (elapsed > 0) {
+                if (Math.random() < 0.08) {
+                  cloneTargets[i].x = (Math.random() - 0.5) * DRIFT_MAX * 2;
+                  cloneTargets[i].y = (Math.random() - 0.5) * DRIFT_MAX * 2;
+                }
+                const lerp = 0.04;
+                cloneOffsets[i].x += (cloneTargets[i].x - cloneOffsets[i].x) * lerp;
+                cloneOffsets[i].y += (cloneTargets[i].y - cloneOffsets[i].y) * lerp;
+              }
+
+              const scale = 1 + (i + 1) * 0.04;
+              const tx = cloneOffsets[i].x;
+              const ty = cloneOffsets[i].y;
+              clones[i].setAttribute('transform',
+                `${borderTransform} translate(${centerX}, ${centerY}) scale(${scale}) translate(${-centerX + tx}, ${-centerY + ty})`
+              );
+              clones[i].style.opacity = String(opacities[i]);
+            }
+
+            if (collapseActive) {
+              collapseFrame = requestAnimationFrame(collapseTick);
+            }
+          };
+
+          svg._startCollapse = () => {
+            collapseActive = true;
+            collapseTime = 0;
+            for (let i = 0; i < cloneCount; i++) {
+              cloneOffsets[i] = { x: 0, y: 0 };
+              cloneTargets[i] = { x: 0, y: 0 };
+            }
+            if (!collapseFrame) collapseFrame = requestAnimationFrame(collapseTick);
+          };
+          svg._stopCollapse = () => {
+            collapseActive = false;
+            for (let i = 0; i < cloneCount; i++) {
+              clones[i].style.opacity = '0';
+            }
+            if (collapseFrame) {
+              cancelAnimationFrame(collapseFrame);
+              collapseFrame = null;
+            }
+          };
+        }
+
+        if (borderGroup) {
+          borderGroup.addEventListener('mouseenter', svg._startCollapse);
+          borderGroup.addEventListener('mouseleave', svg._stopCollapse);
+        }
+        textGroup.addEventListener('mouseenter', svg._startCollapse);
+        textGroup.addEventListener('mouseleave', svg._stopCollapse);
+      }
+
       // Lastick: ME erase + eraser tied to same progress via JS
       if (blockId === 'lastick') {
         const lastickLabel = svg.querySelector('.lastick-label');
