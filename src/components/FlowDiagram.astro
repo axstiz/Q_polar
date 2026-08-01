@@ -26,7 +26,7 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
 
 <div class="diagram-wrapper">
   <svg
-    viewBox="0 0 2433 1520"
+    viewBox="0 -50 2433 1570"
     xmlns="http://www.w3.org/2000/svg"
     class="flow-svg"
     set:html={svgBody}
@@ -35,7 +35,7 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
 
 <style>
   .diagram-wrapper { width: 100%; margin: 0 auto; }
-  .flow-svg { width: 100%; height: auto; display: block; }
+  .flow-svg { width: 100%; height: auto; display: block; overflow: visible; }
 
   /* Hover: только подсветка рамки, без движения */
   :global(.block-border) {
