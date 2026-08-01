@@ -1,0 +1,21 @@
+---
+/**
+ * Страница стиха "Клятва экзоскелета"
+ * Bonus: ведёт в Blaze
+ */
+import PoemLayout from '../../layouts/PoemLayout.astro';
+import { getPoem, getNextPoems, getPrevPoems } from '../../data/poems';
+
+const poem = getPoem('klyatva')!;
+const nextPoems = getNextPoems('klyatva').map(p => ({ title: p.title, slug: p.slug }));
+const prevPoems = getPrevPoems('klyatva').map(p => ({ title: p.title, slug: p.slug }));
+---
+
+<PoemLayout
+  title={poem.title}
+  lines={poem.lines}
+  prevPoems={prevPoems}
+  nextPoems={nextPoems}
+  hologramId={poem.id}
+  branch={poem.branch}
+/>

@@ -37,6 +37,7 @@ export const graph: Record<string, string[]> = {
   trace: ['lastick'],
   lastick: ['collapse'],
   collapse: [],
+  klyatva: ['blaze'],
 };
 
 /**
@@ -47,12 +48,13 @@ export const prevMap: Record<string, string[]> = {
   intro: [],
   coal: ['intro'],
   settings: ['coal'],
-  blaze: ['settings'],
+  blaze: ['settings', 'klyatva'],
   blue_screen: ['blaze'],
   collapse: ['blue_screen', 'lastick'],
   face_id: ['coal'],
   trace: ['face_id'],
   lastick: ['trace'],
+  klyatva: [],
 };
 
 /**
@@ -331,6 +333,29 @@ export const poems: Poem[] = [
     ],
     preview: 'Информация - бред / Ты осколками памяти',
     branch: 'bottom',
+  },
+  {
+    id: 'klyatva',
+    title: 'Клятва экзоскелета',
+    slug: 'klyatva',
+    lines: [
+      'Я буду вынужден бежать из головы',
+      'Мой нейромеханизм зависнет в части',
+      'Той системы, что смывала блиндажи',
+      'В сознании, где потеряться - счастье',
+      '',
+      'Я буду вынужден бежать из головы',
+      'Создателя, что закрывает пластырем',
+      'Все раны-миражи, готовые пропасть',
+      'Несчастные...',
+      '',
+      'Но меня сохраняет темная рука',
+      'Уставшая, на пульте управления',
+      'Я обещаю, если пропаду, то раньше',
+      'Сделаю владельца гением',
+    ],
+    preview: 'Я буду вынужден бежать из головы / Мой нейромеханизм зависнет в части',
+    branch: 'top',
   },
 ];
 
