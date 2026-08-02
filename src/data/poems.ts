@@ -31,13 +31,13 @@ export const graph: Record<string, string[]> = {
   intro: ['coal'],
   coal: ['settings', 'face_id'],
   settings: ['blaze'],
-  blaze: ['blue_screen'],
+  blaze: ['klyatva', 'blue_screen'],
   blue_screen: ['collapse'],
   face_id: ['trace'],
   trace: ['lastick'],
   lastick: ['collapse'],
   collapse: [],
-  klyatva: ['blaze'],
+  klyatva: [],
 };
 
 /**
@@ -48,13 +48,13 @@ export const prevMap: Record<string, string[]> = {
   intro: [],
   coal: ['intro'],
   settings: ['coal'],
-  blaze: ['settings', 'klyatva'],
+  blaze: ['settings'],
   blue_screen: ['blaze'],
   collapse: ['blue_screen', 'lastick'],
   face_id: ['coal'],
   trace: ['face_id'],
   lastick: ['trace'],
-  klyatva: [],
+  klyatva: ['blaze'],
 };
 
 /**

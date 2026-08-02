@@ -22,51 +22,8 @@ const base = import.meta.env.BASE_URL;
   </head>
   <body>
     <main class="container">
-      <!-- Заголовок сайта -->
-      <header class="site-header">
-        <h1 class="site-title">Q-polar</h1>
-        <p class="site-subtitle">Интерактивный сборник стихов</p>
-      </header>
-
       <!-- Интерактивная схема -->
       <FlowDiagram />
-
-      <!-- Инструкция -->
-      <p class="hint">
-        Наведи на блок, чтобы увидеть превью. Нажми, чтобы перейти к стиху.
-      </p>
     </main>
-
-    <style>
-      /* Шапка сайта */
-      .site-header {
-        text-align: center;
-        margin-bottom: 4rem;
-      }
-
-      .site-title {
-        font-size: 4rem;
-        color: var(--accent-blue);
-        letter-spacing: 0.05em;
-      }
-
-      .site-subtitle {
-        font-family: var(--font-handwritten);
-        font-size: 1.4rem;
-        color: var(--text);
-        opacity: 0.6;
-        margin-top: 0.5rem;
-      }
-
-      /* Подсказка внизу */
-      .hint {
-        text-align: center;
-        font-family: var(--font-handwritten);
-        font-size: 1.2rem;
-        color: var(--text);
-        opacity: 0.5;
-        margin-top: 2rem;
-      }
-    </style>
   </body>
 </html>

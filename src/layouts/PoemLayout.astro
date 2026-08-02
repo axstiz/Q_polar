@@ -7,7 +7,6 @@
  * - lines: массив строк стиха
  * - prevPoems: массив предыдущих стихов (для навигации "назад")
  * - nextPoems: массив следующих стихов (для навигации "вперёд")
- * - hologramId: id стиха для отображения уникальной голограммы
  * - branch: ветка графа ('top' | 'bottom' | 'shared')
  */
 interface Props {
@@ -15,21 +14,10 @@ interface Props {
   lines: string[];
   prevPoems: { title: string; slug: string }[];
   nextPoems: { title: string; slug: string }[];
-  hologramId: string;
   branch: 'top' | 'bottom' | 'shared';
 }
 
-const { title, lines, prevPoems, nextPoems, hologramId, branch } = Astro.props;
-
-import IntroHologram from '../components/holograms/IntroHologram.astro';
-import CoalHologram from '../components/holograms/CoalHologram.astro';
-import SettingsHologram from '../components/holograms/SettingsHologram.astro';
-import BlazeHologram from '../components/holograms/BlazeHologram.astro';
-import BlueScreenHologram from '../components/holograms/BlueScreenHologram.astro';
-import CollapseHologram from '../components/holograms/CollapseHologram.astro';
-import FaceIdHologram from '../components/holograms/FaceIdHologram.astro';
-import TraceHologram from '../components/holograms/TraceHologram.astro';
-import LastickHologram from '../components/holograms/LastickHologram.astro';
+const { title, lines, prevPoems, nextPoems, branch } = Astro.props;
 
 const base = import.meta.env.BASE_URL;
 ---
@@ -100,42 +88,6 @@ const base = import.meta.env.BASE_URL;
               )}
             </div>
           </nav>
-        </div>
-
-        <div class="hologram-panel" style={`--branch-color: ${branch === 'top' ? 'var(--accent-red)' : 'var(--accent-blue)'}`}>
-          <div class="hologram-viewport">
-            {
-              hologramId === 'intro' && <IntroHologram />
-            }
-            {
-              hologramId === 'coal' && <CoalHologram />
-            }
-            {
-              hologramId === 'settings' && <SettingsHologram />
-            }
-            {
-              hologramId === 'blaze' && <BlazeHologram />
-            }
-            {
-              hologramId === 'blue_screen' && <BlueScreenHologram />
-            }
-            {
-              hologramId === 'collapse' && <CollapseHologram />
-            }
-            {
-              hologramId === 'face_id' && <FaceIdHologram />
-            }
-            {
-              hologramId === 'trace' && <TraceHologram />
-            }
-            {
-              hologramId === 'lastick' && <LastickHologram />
-            }
-            {
-              !['intro','coal','settings','blaze','blue_screen','collapse','face_id','trace','lastick'].includes(hologramId) && <IntroHologram />
-            }
-          </div>
-          <!-- TODO: mobile — скрывать или коллапсировать голограмму на узких экранах -->
         </div>
       </div>
     </main>
