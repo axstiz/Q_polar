@@ -31,13 +31,13 @@ export const graph: Record<string, string[]> = {
   intro: ['coal'],
   coal: ['settings', 'face_id'],
   settings: ['blaze'],
-  blaze: ['klyatva', 'blue_screen'],
+  blaze: ['klyatva-exo', 'blue_screen'],
   blue_screen: ['collapse'],
   face_id: ['trace'],
   trace: ['lastick'],
   lastick: ['collapse'],
   collapse: [],
-  klyatva: [],
+  'klyatva-exo': [],
 };
 
 /**
@@ -54,7 +54,7 @@ export const prevMap: Record<string, string[]> = {
   face_id: ['coal'],
   trace: ['face_id'],
   lastick: ['trace'],
-  klyatva: ['blaze'],
+  'klyatva-exo': ['blaze'],
 };
 
 /**
@@ -335,9 +335,9 @@ export const poems: Poem[] = [
     branch: 'bottom',
   },
   {
-    id: 'klyatva',
+    id: 'klyatva-exo',
     title: 'Клятва экзоскелета',
-    slug: 'klyatva',
+    slug: 'klyatva-exo',
     lines: [
       'Я буду вынужден бежать из головы',
       'Мой нейромеханизм зависнет в части',
