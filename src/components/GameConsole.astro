@@ -1,0 +1,452 @@
+---
+import FlowDiagram from './FlowDiagram.astro';
+---
+<section id="gc">
+  <div class="cbd">
+    <div class="screen">
+      <FlowDiagram />
+      <div class="scanlines"></div>
+      <div class="hud">
+        <span id="pt" class="hdt"></span>
+        <span id="pp" class="hsp"></span>
+      </div>
+    </div>
+  </div>
+  <div class="ctls">
+    <div class="dp" id="dpd">
+      <button data-i="u" aria-label="Вверх">&#9650;</button>
+      <button data-i="d" aria-label="Вниз">&#9660;</button>
+      <button data-i="l" aria-label="Влево">&#9664;</button>
+      <button data-i="r" aria-label="Вправо">&#9654;</button>
+    </div>
+    <div class="ab">
+      <button data-i="open" aria-label="Открыть">A</button>
+      <button data-i="reset" aria-label="Сброс">B</button>
+    </div>
+  </div>
+  <div class="spkr"><span></span><span></span><span></span><span></span></div>
+</section>
+<style>
+  #gc {
+    position: relative;
+    margin: 0 auto;
+    width: min(100%, 580px);
+    font-family: 'Excalifont', sans-serif;
+    text-align: center;
+    padding: 16px;
+  }
+  .cbd {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 3px solid #383;
+    background: #fffce8;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35), inset 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+  #gc :global(.flow-svg) {
+    width: 100% !important;
+    height: auto;
+    display: block;
+  }
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px);
+    mix-blend-mode: multiply;
+    opacity: 0.35;
+    z-index: 1;
+  }
+  .hud {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    pointer-events: none;
+    background: rgba(255, 252, 232, 0.92);
+    backdrop-filter: blur(4px);
+    z-index: 2;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .hdt {
+    font-weight: 700;
+    color: #1e1e1e;
+    text-align: left;
+  }
+  .hsp {
+    color: #666;
+    text-align: right;
+  }
+  .ctls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 0 10px;
+  }
+  .dp {
+    display: grid;
+    grid-template-columns: repeat(3, 46px);
+    grid-template-rows: repeat(3, 46px);
+    gap: 4px;
+  }
+  .dp button {
+    width: 46px;
+    height: 46px;
+    border-radius: 8px;
+    border: 2px solid #2a2a2a;
+    background: linear-gradient(180deg, #5b5b6b, #3a3a48);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #1e1e2e;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .dp button:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #1e1e2e;
+  }
+  .dp button[data-i="u"] { grid-column: 2; grid-row: 1; }
+  .dp button[data-i="d"] { grid-column: 2; grid-row: 3; }
+  .dp button[data-i="l"] { grid-column: 1; grid-row: 2; }
+  .dp button[data-i="r"] { grid-column: 3; grid-row: 2; }
+  .ab {
+    display: flex;
+    gap: 12px;
+  }
+  .ab button {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid #2a2a2a;
+    font-weight: 700;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #1e1e2e;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .ab button:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #1e1e2e;
+  }
+  .ab button[data-i="open"] {
+    background: linear-gradient(180deg, #f06595, #d6336c);
+    color: #fff;
+  }
+  .ab button[data-i="reset"] {
+    background: linear-gradient(180deg, #ffd43b, #f08c00);
+    color: #2a2a2a;
+  }
+  .spkr {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+  .spkr span {
+    width: 6px;
+    height: 18px;
+    border-radius: 2px;
+    background: #5b5b6b;
+  }
+</style>
+
+<script>
+  import { NavigationMachine } from '../lib/navMachine.js';
+
+  const LABELS: Record<string, string> = {
+    'Intro': 'intro',
+    'Coal': 'coal',
+    'Settings': 'settings',
+    'Клятва': 'klyatva-exo',
+    'экзоскелета': 'klyatva-exo',
+    'Blaze': 'blaze',
+    'Лаstick': 'lastick',
+    'tRace': 'trace',
+    'Blue screen': 'blue_screen',
+    'Face id': 'face_id',
+    'Collapse': 'collapse',
+  };
+
+  const TITLES: Record<string, string> = {
+    intro: 'Intro',
+    coal: 'Coal',
+    settings: 'Settings',
+    blaze: 'Blaze',
+    blue_screen: 'Blue screen',
+    collapse: 'Collapse',
+    face_id: 'Face id',
+    trace: 'tRace',
+    lastick: 'Лаstick',
+    'klyatva-exo': 'Клятва экзоскелета',
+  };
+
+  const PREVIEWS: Record<string, string> = {
+    intro: 'Я на пьяном угаре рисую узоры',
+    coal: 'Тряска пустых сосудов',
+    settings: 'Загружайся в абстракцию, дура',
+    blaze: 'Без контекста пустые',
+    blue_screen: 'Дуло, висок',
+    collapse: 'Пустота не диагноз',
+    face_id: 'Мозг не источник, а интерфейс',
+    trace: 'Я боялся что выброшусь в море',
+    lastick: 'Информация - бред',
+    'klyatva-exo': 'Я буду вынужден бежать из головы',
+  };
+
+  const SIMPLE: Record<string, string[]> = {
+    intro: ['.intro-dots', '.intro-dots-mirror'],
+    coal: ['.coal-elements'],
+    settings: ['.settings-effects'],
+    blaze: ['.blaze-flames'],
+    blue_screen: ['.blue-screen-effects'],
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const svg = document.querySelector('.flow-svg');
+    const pt = document.getElementById('pt');
+    const pp = document.getElementById('pp');
+    if (!svg || !pt || !pp) return;
+
+    const nodes = new Map<string, { border: Element; text: Element }>();
+    svg.querySelectorAll('text').forEach((textEl) => {
+      const text = (textEl.textContent || '').trim();
+      const id = LABELS[text];
+      if (!id || nodes.has(id)) return;
+      const textGroup = textEl.parentElement;
+      if (!textGroup || textGroup.tagName !== 'g') return;
+      let sibling: Element | null = textGroup.previousElementSibling;
+      while (sibling) {
+        if (sibling.tagName === 'g' && sibling.getAttribute('stroke-linecap') === 'round') {
+          sibling.classList.add('block-border');
+          textGroup.classList.add('block-text');
+          nodes.set(id, { border: sibling, text: textGroup });
+          break;
+        }
+        sibling = sibling.previousElementSibling;
+      }
+    });
+
+    const q = (sel: string): Element | null => svg.querySelector(sel);
+    const add = (sel: string) => q(sel)?.classList.add('animate');
+    const del = (sel: string) => q(sel)?.classList.remove('animate');
+
+    let dropTimer: number | undefined;
+    const traceLine = q('.trace-border-line');
+    const bloodWrapper = q('.trace-blood-wrapper');
+    const bloodDrop = q('.trace-blood-drop');
+    const startTrace = () => {
+      if (!traceLine) return;
+      traceLine.classList.add('animate');
+      if (bloodWrapper && bloodDrop) {
+        const parent = traceLine.parentElement;
+        const tr = parent ? (parent.getAttribute('transform') || '') : '';
+        const m = tr.match(/translate\(([\d.]+),\s*([\d.]+)\)/);
+        const bx = m ? parseFloat(m[1]) : 1255.79;
+        const by = m ? parseFloat(m[2]) : 805.14;
+        bloodWrapper.setAttribute('transform', `translate(${bx + Math.random() * 235.2}, ${by + 235.2 * 0.65 + 18})`);
+      }
+      dropTimer = window.setTimeout(() => bloodDrop?.classList.add('animate'), 1500);
+    };
+    const stopTrace = () => {
+      traceLine?.classList.remove('animate');
+      bloodDrop?.classList.remove('animate');
+      if (dropTimer) { clearTimeout(dropTimer); dropTimer = undefined; }
+    };
+
+    let lockTimer: number | undefined;
+    const faceIdGroup = q('.face-id-effects');
+    const startFace = () => {
+      faceIdGroup?.classList.add('animate');
+      lockTimer = window.setTimeout(() => faceIdGroup?.classList.add('unlocked'), 1500);
+    };
+    const stopFace = () => {
+      faceIdGroup?.classList.remove('animate');
+      faceIdGroup?.classList.remove('unlocked');
+      if (lockTimer) { clearTimeout(lockTimer); lockTimer = undefined; }
+    };
+
+    const NS = 'http://www.w3.org/2000/svg';
+    let startCollapse: (() => void) | undefined;
+    let stopCollapse: (() => void) | undefined;
+    const collapseNode = nodes.get('collapse');
+    if (collapseNode) {
+      const border = collapseNode.border;
+      const clones: Element[] = [];
+      const cloneCount = 7;
+      const opacities = [0.55, 0.45, 0.36, 0.28, 0.21, 0.15, 0.10];
+      const offsets: { x: number; y: number }[] = [];
+      const targets: { x: number; y: number }[] = [];
+      let frame = 0;
+      let active = false;
+      let prev = 0;
+      const container = document.createElementNS(NS, 'g');
+      container.classList.add('collapse-echoes');
+      container.style.pointerEvents = 'none';
+      svg.appendChild(container);
+      const borderTransform = border.getAttribute('transform') || '';
+      for (let i = 0; i < cloneCount; i++) {
+        const clone = border.cloneNode(true) as Element;
+        clone.removeAttribute('class');
+        (clone as SVGElement).style.opacity = '0';
+        container.appendChild(clone);
+        clones.push(clone);
+        offsets.push({ x: 0, y: 0 });
+        targets.push({ x: 0, y: 0 });
+      }
+      const tick = (now: number) => {
+        if (!prev) prev = now;
+        const dt = now - prev;
+        prev = now;
+        for (let i = 0; i < cloneCount; i++) {
+          if (dt > 0 && Math.random() < 0.08) {
+            targets[i].x = (Math.random() - 0.5) * 20;
+            targets[i].y = (Math.random() - 0.5) * 20;
+          }
+          const k = 0.04;
+          offsets[i].x += (targets[i].x - offsets[i].x) * k;
+          offsets[i].y += (targets[i].y - offsets[i].y) * k;
+          const scale = 1 + (i + 1) * 0.04;
+          clones[i].setAttribute('transform',
+            `${borderTransform} translate(117.6, 78.4) scale(${scale}) translate(${-117.6 + offsets[i].x}, ${-78.4 + offsets[i].y})`);
+          (clones[i] as SVGElement).style.opacity = String(opacities[i]);
+        }
+        if (active) frame = requestAnimationFrame(tick);
+      };
+      startCollapse = () => {
+        active = true;
+        prev = 0;
+        for (let i = 0; i < cloneCount; i++) { offsets[i] = { x: 0, y: 0 }; targets[i] = { x: 0, y: 0 }; }
+        if (!frame) frame = requestAnimationFrame(tick);
+      };
+      stopCollapse = () => {
+        active = false;
+        for (const c of clones) (c as SVGElement).style.opacity = '0';
+        if (frame) { cancelAnimationFrame(frame); frame = 0; }
+      };
+    }
+
+    const lastickLabel = q('.lastick-label');
+    const meText = lastickLabel?.querySelector('.label-me');
+    const eraserGroup = lastickLabel?.querySelector('.label-eraser');
+    let eraseProgress = 0;
+    let eraseTarget = 0;
+    let eraseFrame = 0;
+    let erasePrev = 0;
+    let eraseDelay: number | undefined;
+    const eraseTick = (now: number) => {
+      if (!erasePrev) erasePrev = now;
+      const dt = now - erasePrev;
+      erasePrev = now;
+      const dir = eraseTarget > eraseProgress ? 1 : -1;
+      eraseProgress = Math.max(0, Math.min(1, eraseProgress + dir * (dt / 1000)));
+      if (eraserGroup) {
+        eraserGroup.setAttribute('transform', `translate(${-100 + 240 * eraseProgress}, 0)`);
+        eraserGroup.setAttribute('opacity', String(Math.min(1, eraseProgress * 3)));
+      }
+      if (meText) {
+        (meText as SVGElement).style.clipPath = `inset(0 0 0 ${eraseProgress * 100}%)`;
+        meText.style.opacity = eraseProgress < 0.05 ? '1' : String(1 - eraseProgress);
+      }
+      if (eraseProgress !== eraseTarget) {
+        eraseFrame = requestAnimationFrame(eraseTick);
+      } else {
+        eraseFrame = 0;
+        if (eraseTarget === 0 && meText) {
+          meText.style.opacity = '1';
+          meText.style.clipPath = 'inset(0 0 0 0)';
+        }
+      }
+    };
+    const startLastick = () => {
+      if (eraseDelay) { clearTimeout(eraseDelay); eraseDelay = undefined; }
+      eraseTarget = 1;
+      if (!eraseFrame) { erasePrev = 0; eraseFrame = requestAnimationFrame(eraseTick); }
+    };
+    const stopLastick = () => {
+      eraseTarget = 0;
+      if (eraseDelay) clearTimeout(eraseDelay);
+      eraseDelay = window.setTimeout(() => {
+        if (!eraseFrame) { erasePrev = 0; eraseFrame = requestAnimationFrame(eraseTick); }
+      }, 0);
+    };
+
+    const noop = () => {};
+    const ENTER: Record<string, () => void> = {
+      intro: () => SIMPLE.intro.forEach(add),
+      coal: () => add('.coal-elements'),
+      settings: () => add('.settings-effects'),
+      blaze: () => add('.blaze-flames'),
+      blue_screen: () => add('.blue-screen-effects'),
+      trace: startTrace,
+      face_id: startFace,
+      collapse: startCollapse ?? noop,
+      lastick: startLastick,
+    };
+    const LEAVE: Record<string, () => void> = {
+      intro: () => SIMPLE.intro.forEach(del),
+      coal: () => del('.coal-elements'),
+      settings: () => del('.settings-effects'),
+      blaze: () => del('.blaze-flames'),
+      blue_screen: () => del('.blue-screen-effects'),
+      trace: stopTrace,
+      face_id: stopFace,
+      collapse: stopCollapse ?? noop,
+      lastick: stopLastick,
+    };
+
+    const machine = new NavigationMachine();
+    let current: string | null = null;
+
+    const apply = (node: string) => {
+      if (current && LEAVE[current]) LEAVE[current]();
+      current = node;
+      svg.querySelectorAll('.block-border.selected').forEach((b) => b.classList.remove('selected'));
+      const info = nodes.get(node);
+      if (info) info.border.classList.add('selected');
+      if (ENTER[node]) ENTER[node]();
+      pt.textContent = TITLES[node] ?? node;
+      pp.textContent = PREVIEWS[node] ?? '';
+    };
+
+    machine.subscribe(apply);
+
+    const press = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowRight': e.preventDefault(); machine.right(); break;
+        case 'ArrowLeft': e.preventDefault(); machine.left(); break;
+        case 'ArrowUp': e.preventDefault(); machine.up(); break;
+        case 'ArrowDown': e.preventDefault(); machine.down(); break;
+        case 'Enter': case ' ': e.preventDefault(); machine.open(); break;
+        case 'Backspace': e.preventDefault(); machine.left(); break;
+        case 'Escape': e.preventDefault(); machine.reset(); break;
+      }
+    };
+    window.addEventListener('keydown', press);
+
+    const bindButtons = (root: Element | null) => {
+      root?.addEventListener('pointerdown', (e) => {
+        const target = (e.target as Element).closest('button');
+        if (!target) return;
+        const i = target.dataset.i;
+        if (i === 'u') machine.up();
+        else if (i === 'd') machine.down();
+        else if (i === 'l') machine.left();
+        else if (i === 'r') machine.right();
+        else if (i === 'open') machine.open();
+        else if (i === 'reset') machine.reset();
+      });
+    };
+    bindButtons(document.getElementById('dpd'));
+    bindButtons(document.querySelector('#gc .ab'));
+  });
+</script>
