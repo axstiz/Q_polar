@@ -3,27 +3,12 @@ import FlowDiagram from './FlowDiagram.astro';
 ---
 <section id="gc">
   <div class="screen">
-    <img class="screen-bg" src="/Q_polar/images/экран.png" alt="" />
     <FlowDiagram />
-    <img class="screen-cutout" src="/Q_polar/images/экран с вырезом.png" alt="" />
   </div>
-  <div class="ctls">
-    <div class="dp" id="dpd">
-      <button data-i="u" aria-label="Вверх"><img src="/Q_polar/images/стрелка вверх.png" alt="" /></button>
-      <button data-i="d" aria-label="Вниз"><img src="/Q_polar/images/стрелка вниз.png" alt="" /></button>
-      <button data-i="l" aria-label="Влево"><img src="/Q_polar/images/стрелка влево.png" alt="" /></button>
-      <button data-i="r" aria-label="Вправо"><img src="/Q_polar/images/стрелка вправо.png" alt="" /></button>
-    </div>
-    <div class="ab">
-      <button data-i="open" aria-label="Открыть">A</button>
-      <button data-i="reset" aria-label="Сброс">B</button>
-    </div>
-  </div>
-  <div class="footer"><img src="/Q_polar/images/футер.png" alt="" /></div>
   <div class="spkr"><span></span><span></span><span></span><span></span></div>
 </section>
 <style>
-  #gc, .dp button, .ab button {
+  #gc {
     outline: none !important;
   }
   #gc {
@@ -43,14 +28,6 @@ import FlowDiagram from './FlowDiagram.astro';
     margin: 0 auto;
     overflow: hidden;
   }
-  .screen-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    z-index: 0;
-  }
   #gc :global(.flow-svg) {
     position: absolute;
     inset: 0;
@@ -58,97 +35,6 @@ import FlowDiagram from './FlowDiagram.astro';
     height: 100% !important;
     display: block;
     z-index: 1;
-  }
-  .screen-cutout {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-    z-index: 2;
-  }
-  .footer {
-    width: 100%;
-    max-width: 603px;
-    margin: 40px auto 0;
-    display: block;
-  }
-  .footer img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  .ctls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding: 0 10px;
-  }
-  .dp {
-    display: grid;
-    grid-template-columns: repeat(3, 48px);
-    grid-template-rows: repeat(3, 48px);
-    gap: 1px;
-  }
-  .dp button {
-    width: 56px;
-    height: 56px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .dp button[data-i="u"] { grid-column: 2; grid-row: 1; }
-  .dp button[data-i="d"] { grid-column: 2; grid-row: 3; }
-  .dp button[data-i="l"] { grid-column: 1; grid-row: 2; }
-  .dp button[data-i="r"] { grid-column: 3; grid-row: 2; }
-  .dp button img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    pointer-events: none;
-  }
-  .dp button:active {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-  .ab {
-    display: flex;
-    gap: 12px;
-  }
-  .ab button {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: 2px solid #2a2a2a;
-    font-weight: 700;
-    font-size: 18px;
-    cursor: pointer;
-    box-shadow: 0 4px 0 #1e1e2e;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .ab button:active {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 #1e1e2e;
-  }
-  .ab button[data-i="open"] {
-    background: linear-gradient(180deg, #f06595, #d6336c);
-    color: #fff;
-  }
-  .ab button[data-i="reset"] {
-    background: linear-gradient(180deg, #ffd43b, #f08c00);
-    color: #2a2a2a;
   }
   .spkr {
     display: flex;
@@ -423,20 +309,5 @@ import FlowDiagram from './FlowDiagram.astro';
     };
     window.addEventListener('keydown', press);
 
-    const bindButtons = (root: Element | null) => {
-      root?.addEventListener('pointerdown', (e) => {
-        const target = (e.target as Element).closest('button');
-        if (!target) return;
-        const i = target.dataset.i;
-        if (i === 'u') machine.up();
-        else if (i === 'd') machine.down();
-        else if (i === 'l') machine.left();
-        else if (i === 'r') machine.right();
-        else if (i === 'open') machine.open();
-        else if (i === 'reset') machine.reset();
-      });
-    };
-    bindButtons(document.getElementById('dpd'));
-    bindButtons(document.querySelector('#gc .ab'));
   });
 </script>
