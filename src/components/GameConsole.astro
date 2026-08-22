@@ -19,8 +19,8 @@ import FlowDiagram from './FlowDiagram.astro';
   <button class="btn btn-dpad-down" data-action="down" aria-label="Вниз"><img src="/Q_polar/приставка/вниз.png" alt="" /></button>
   <button class="btn btn-big-1" data-action="open" aria-label="Большая 1"><img src="/Q_polar/приставка/большая 1.png" alt="" /></button>
   <button class="btn btn-big-2" data-action="open" aria-label="Большая 2"><img src="/Q_polar/приставка/большая 2.png" alt="" /></button>
-  <button class="btn btn-small-1" data-action="small1" aria-label="Маленькая 1"><img src="/Q_polar/приставка/маленькая 1.png" alt="" /></button>
-  <button class="btn btn-small-2" data-action="small2" aria-label="Маленькая 2"><img src="/Q_polar/приставка/маленькая 2.png" alt="" /></button>
+      <button class="btn btn-small-1" data-action="small1" aria-label="Пауза"><img src="/Q_polar/приставка/маленькая 1.png" alt="" /></button>
+      <button class="btn btn-small-2" data-action="small2" aria-label="Воспроизвести"><img src="/Q_polar/приставка/маленькая 2.png" alt="" /></button>
   <button class="btn btn-horizontal" data-action="enter2" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
   <button class="btn btn-top-solo" data-action="top" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
 </section>
@@ -549,6 +549,26 @@ import FlowDiagram from './FlowDiagram.astro';
       return a > 30;
     }
 
+    const base = import.meta.env.BASE_URL ?? '/';
+    const TRACK_SLUGS: Record<string, string> = {
+      blue_screen: 'blue-screen',
+      face_id: 'face-id',
+      'klyatva-exo': 'klyatva',
+    };
+    const audio = new Audio();
+    audio.preload = 'none';
+    let currentTrack = '';
+    function playMusic() {
+      const slug = TRACK_SLUGS[machine.current] ?? machine.current;
+      if (currentTrack !== slug) {
+        audio.src = `${base}audio/${slug}.mp3`;
+        currentTrack = slug;
+      }
+      audio.play().catch(() => {});
+    }
+    function pauseMusic() {
+      audio.pause();
+    }
     function act(btn) {
       const action = btn.dataset.action;
       if (gc.classList.contains('is-open') && ['up', 'down', 'left', 'right'].includes(action)) return;
@@ -558,7 +578,9 @@ import FlowDiagram from './FlowDiagram.astro';
       else if (action === 'down') machine.down();
       else if (action === 'open') revealScreen();
       else if (action === 'enter2') closeReveal();
-      // 'small1','small2','top' и любые новые — пока не назначены: без действия
+      else if (action === 'small1') pauseMusic();
+      else if (action === 'small2') playMusic();
+      // 'top' и любые новые — пока не назначены: без действия
     }
     function pulse(btn) {
       btn.classList.remove('pressed');
