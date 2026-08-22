@@ -91,6 +91,8 @@ import FlowDiagram from './FlowDiagram.astro';
     user-select: none;
     outline: none;
     margin: 0;
+    transform-origin: center;
+    transition: transform 0.09s ease-out;
   }
   .btn img {
     width: 100%;
@@ -98,25 +100,53 @@ import FlowDiagram from './FlowDiagram.astro';
     object-fit: contain;
     display: block;
     pointer-events: none;
+    transition: filter 0.12s ease-out, transform 0.09s ease-out;
   }
   .btn:focus-visible {
     outline: 2px solid #6741d9;
     outline-offset: 2px;
     border-radius: 4px;
   }
-  .btn:active img {
-    filter: brightness(0.75);
+  .btn:hover img {
+    filter: brightness(1.1);
   }
-  .btn-dpad-up    { left: 28.2%; top: 56.2%; width: 8.4%; height: 6.2%; }
-  .btn-dpad-left  { left: 21.5%; top: 61.5%; width: 8.4%; height: 6.2%; }
-  .btn-dpad-right { left: 35.1%; top: 61.5%; width: 8.4%; height: 6.2%; }
-  .btn-dpad-down  { left: 28.4%; top: 66.4%; width: 8.4%; height: 6.2%; }
-  .btn-big-1      { left: 54.8%; top: 62.4%; width: 11.6%; height: 8.6%; }
-  .btn-big-2      { left: 67.1%; top: 59.2%; width: 10.9%; height: 8.1%; }
-  .btn-small-1    { left: 34.3%; top: 73.8%; width: 11.0%; height: 8.2%; }
-  .btn-small-2    { left: 45.4%; top: 73.8%; width: 11.0%; height: 8.2%; }
-  .btn-horizontal { left: 14.2%; top: 82.4%; width: 35.5%; height: 8.2%; }
-  .btn-top-solo   { left: 26.9%; top: 49.0%; width: 6.7%; height: 4.9%; }
+  .btn:active {
+    transform: scale(0.9);
+  }
+  .btn:active img {
+    filter: brightness(0.7) drop-shadow(0 0 6px rgba(103, 65, 217, 0.9));
+  }
+  @keyframes btnPulse {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(0.88); }
+    100% { transform: scale(1); }
+  }
+  .btn.pressed {
+    animation: btnPulse 0.2s ease-out;
+  }
+  .btn.pressed img {
+    filter: brightness(0.7) drop-shadow(0 0 8px rgba(103, 65, 217, 0.95));
+  }
+  .btn-dpad-up    { left: 28.23%; top: 56.2%; width: 8.34%; height: 6.2%;
+    clip-path: ellipse(49% 49% at 50% 50%); }
+  .btn-dpad-left  { left: 21.53%; top: 61.5%; width: 8.34%; height: 6.2%;
+    clip-path: ellipse(49% 49% at 50% 50%); }
+  .btn-dpad-right { left: 35.13%; top: 61.5%; width: 8.34%; height: 6.2%;
+    clip-path: ellipse(49% 49% at 50% 50%); }
+  .btn-dpad-down  { left: 28.43%; top: 66.4%; width: 8.34%; height: 6.2%;
+    clip-path: ellipse(49% 49% at 50% 50%); }
+  .btn-big-1      { left: 54.82%; top: 62.4%; width: 11.57%; height: 8.6%;
+    clip-path: ellipse(45% 45% at 50% 50%); }
+  .btn-big-2      { left: 67.11%; top: 59.2%; width: 10.89%; height: 8.1%;
+    clip-path: ellipse(45% 45% at 50% 50%); }
+  .btn-small-1    { left: 34.31%; top: 73.8%; width: 10.98%; height: 8.2%;
+    clip-path: ellipse(45% 45% at 50% 50%); }
+  .btn-small-2    { left: 45.41%; top: 73.8%; width: 10.98%; height: 8.2%;
+    clip-path: ellipse(45% 45% at 50% 50%); }
+  .btn-horizontal { left: 23.71%; top: 82.4%; width: 16.49%; height: 8.2%;
+    clip-path: ellipse(48% 33% at 50% 50%); }
+  .btn-top-solo   { left: 27.13%; top: 49.0%; width: 6.24%; height: 4.9%;
+    clip-path: ellipse(45% 45% at 50% 50%); }
 </style>
 
 <script>
@@ -396,6 +426,10 @@ import FlowDiagram from './FlowDiagram.astro';
         else if (action === 'down') machine.down();
         else if (action === 'enter') machine.open();
         else machine.open();
+        btn.classList.remove('pressed');
+        void btn.offsetWidth;
+        btn.classList.add('pressed');
+        setTimeout(() => btn.classList.remove('pressed'), 220);
       });
       btn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
