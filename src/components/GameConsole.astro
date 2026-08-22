@@ -110,8 +110,8 @@ import FlowDiagram from './FlowDiagram.astro';
     will-change: transform, opacity;
     filter: drop-shadow(0 -2px 6px rgba(0, 0, 0, 0.45));
   }
-  .screen-reveal .reveal-img--back { z-index: 1; }
-  .screen-reveal .reveal-img--front { z-index: 2; transition-delay: 0.12s; }
+  .screen-reveal .reveal-img--back { z-index: 1; transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) 0.12s, opacity 0.3s ease 0.12s; }
+  .screen-reveal .reveal-img--front { z-index: 2; transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease; }
   .screen-reveal.is-open .reveal-img--back { opacity: 1; transform: translateY(55%); }
   .screen-reveal.is-open .reveal-img--front { opacity: 1; transform: translateY(88%); }
   .spkr {
