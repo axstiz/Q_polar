@@ -110,12 +110,6 @@ import FlowDiagram from './FlowDiagram.astro';
   .btn:hover img {
     filter: brightness(1.1);
   }
-  .btn:active {
-    transform: scale(0.9);
-  }
-  .btn:active img {
-    filter: brightness(0.7) drop-shadow(0 0 6px rgba(103, 65, 217, 0.9));
-  }
   @keyframes btnPulse {
     0%   { transform: scale(1); }
     35%  { transform: scale(0.88); }
@@ -127,26 +121,16 @@ import FlowDiagram from './FlowDiagram.astro';
   .btn.pressed img {
     filter: brightness(0.7) drop-shadow(0 0 8px rgba(103, 65, 217, 0.95));
   }
-  .btn-dpad-up    { left: 28.23%; top: 56.2%; width: 8.34%; height: 6.2%;
-    clip-path: ellipse(49% 49% at 50% 50%); }
-  .btn-dpad-left  { left: 21.53%; top: 61.5%; width: 8.34%; height: 6.2%;
-    clip-path: ellipse(49% 49% at 50% 50%); }
-  .btn-dpad-right { left: 35.13%; top: 61.5%; width: 8.34%; height: 6.2%;
-    clip-path: ellipse(49% 49% at 50% 50%); }
-  .btn-dpad-down  { left: 28.43%; top: 66.4%; width: 8.34%; height: 6.2%;
-    clip-path: ellipse(49% 49% at 50% 50%); }
-  .btn-big-1      { left: 54.82%; top: 62.4%; width: 11.57%; height: 8.6%;
-    clip-path: ellipse(45% 45% at 50% 50%); }
-  .btn-big-2      { left: 67.11%; top: 59.2%; width: 10.89%; height: 8.1%;
-    clip-path: ellipse(45% 45% at 50% 50%); }
-  .btn-small-1    { left: 34.31%; top: 73.8%; width: 10.98%; height: 8.2%;
-    clip-path: ellipse(45% 45% at 50% 50%); }
-  .btn-small-2    { left: 45.41%; top: 73.8%; width: 10.98%; height: 8.2%;
-    clip-path: ellipse(45% 45% at 50% 50%); }
-  .btn-horizontal { left: 23.71%; top: 82.4%; width: 16.49%; height: 8.2%;
-    clip-path: ellipse(48% 33% at 50% 50%); }
-  .btn-top-solo   { left: 27.13%; top: 49.0%; width: 6.24%; height: 4.9%;
-    clip-path: ellipse(45% 45% at 50% 50%); }
+  .btn-dpad-up    { left: 28.2%; top: 56.2%; width: 8.4%; height: 6.2%; }
+  .btn-dpad-left  { left: 21.5%; top: 61.5%; width: 8.4%; height: 6.2%; }
+  .btn-dpad-right { left: 35.1%; top: 61.5%; width: 8.4%; height: 6.2%; }
+  .btn-dpad-down  { left: 28.4%; top: 66.4%; width: 8.4%; height: 6.2%; }
+  .btn-big-1      { left: 54.8%; top: 62.4%; width: 11.6%; height: 8.6%; }
+  .btn-big-2      { left: 67.1%; top: 59.2%; width: 10.9%; height: 8.1%; }
+  .btn-small-1    { left: 34.3%; top: 73.8%; width: 11.0%; height: 8.2%; }
+  .btn-small-2    { left: 45.4%; top: 73.8%; width: 11.0%; height: 8.2%; }
+  .btn-horizontal { left: 14.2%; top: 82.4%; width: 35.5%; height: 8.2%; }
+  .btn-top-solo   { left: 26.9%; top: 49.0%; width: 6.7%; height: 4.9%; }
 </style>
 
 <script>
@@ -417,8 +401,45 @@ import FlowDiagram from './FlowDiagram.astro';
     };
     window.addEventListener('keydown', press);
 
+    const alphaCache = new Map();
+    function loadAlpha(src) {
+      if (alphaCache.has(src)) return;
+      alphaCache.set(src, null);
+      const im = new Image();
+      im.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = im.naturalWidth; c.height = im.naturalHeight;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(im, 0, 0);
+        let rec = null;
+        try {
+          const data = ctx.getImageData(0, 0, c.width, c.height).data;
+          rec = { data, w: c.width, h: c.height };
+        } catch (err) { rec = null; }
+        alphaCache.set(src, rec);
+      };
+      im.src = src;
+    }
+    function isOpaque(img, clientX, clientY) {
+      const rec = alphaCache.get(img.src);
+      if (!rec) return true;
+      const r = img.getBoundingClientRect();
+      const scale = Math.min(r.width / rec.w, r.height / rec.h);
+      const offX = (r.width - rec.w * scale) / 2;
+      const offY = (r.height - rec.h * scale) / 2;
+      const x = (clientX - r.left - offX) / scale;
+      const y = (clientY - r.top - offY) / scale;
+      if (x < 0 || y < 0 || x >= rec.w || y >= rec.h) return false;
+      const a = rec.data[((y | 0) * rec.w + (x | 0)) * 4 + 3];
+      return a > 30;
+    }
+
     gc.querySelectorAll('.btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      const img = btn.querySelector('img');
+      if (img) loadAlpha(img.src);
+      btn.addEventListener('click', (e) => {
+        const wasKey = btn._key; btn._key = false;
+        if (!wasKey && img && !isOpaque(img, e.clientX, e.clientY)) return;
         const action = btn.dataset.action;
         if (action === 'up') machine.up();
         else if (action === 'left') machine.left();
@@ -432,7 +453,7 @@ import FlowDiagram from './FlowDiagram.astro';
         setTimeout(() => btn.classList.remove('pressed'), 220);
       });
       btn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn._key = true; btn.click(); }
       });
     });
 
