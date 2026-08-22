@@ -91,7 +91,9 @@ import FlowDiagram from './FlowDiagram.astro';
     height: 57.3%;
     transform: translateX(-50%);
     box-sizing: border-box;
-    padding: 7% 6%;
+    padding: 7% 7%;
+    border: 8px solid transparent;
+    border-radius: 22px;
     z-index: 3;
     display: flex;
     flex-direction: column;
@@ -102,7 +104,19 @@ import FlowDiagram from './FlowDiagram.astro';
     font-family: var(--font-handwritten);
     opacity: 0;
     pointer-events: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--branch-color, #6741d9) transparent;
     transition: opacity 0.4s ease;
+  }
+  .poem-on-screen::-webkit-scrollbar {
+    width: 6px;
+  }
+  .poem-on-screen::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .poem-on-screen::-webkit-scrollbar-thumb {
+    background: var(--branch-color, #6741d9);
+    border-radius: 6px;
   }
   #gc.is-open .poem-on-screen {
     opacity: 1;
@@ -601,7 +615,9 @@ import FlowDiagram from './FlowDiagram.astro';
       const title = document.createElement('div');
       title.className = 'poem-title';
       title.textContent = p.title;
-      title.style.color = BRANCH_COLORS[p.branch] || 'var(--accent-blue)';
+      const branchColor = BRANCH_COLORS[p.branch] || '#6741d9';
+      title.style.color = branchColor;
+      poemEl.style.setProperty('--branch-color', branchColor);
       const text = document.createElement('div');
       text.className = 'poem-text';
       for (const line of p.lines) {
