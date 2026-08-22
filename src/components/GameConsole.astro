@@ -6,6 +6,7 @@ import FlowDiagram from './FlowDiagram.astro';
   <div class="screen">
     <FlowDiagram />
   </div>
+  <div class="screen-backdrop" aria-hidden="true"></div>
   <div class="screen-reveal" aria-hidden="true">
     <img class="reveal-img reveal-img--back" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
     <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
@@ -58,7 +59,23 @@ import FlowDiagram from './FlowDiagram.astro';
     width: var(--screen-w);
     height: var(--screen-h);
     overflow: hidden;
+    z-index: 4;
+  }
+  .screen-backdrop {
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    width: 43%;
+    height: 32%;
+    transform: translateX(-50%);
+    background: #fffce8;
+    border-radius: 22px;
     z-index: 3;
+    pointer-events: none;
+    transition: height 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  #gc.is-open .screen-backdrop {
+    height: 60%;
   }
   #gc :global(.flow-svg) {
     position: absolute;
@@ -495,6 +512,9 @@ import FlowDiagram from './FlowDiagram.astro';
     function revealScreen() {
       const r = gc.querySelector('.screen-reveal');
       if (!r) return;
+      gc.classList.remove('is-open');
+      void gc.offsetWidth;
+      gc.classList.add('is-open');
       r.classList.remove('is-open');
       void r.offsetWidth;
       r.classList.add('is-open');
@@ -502,6 +522,7 @@ import FlowDiagram from './FlowDiagram.astro';
     function closeReveal() {
       const r = gc.querySelector('.screen-reveal');
       if (!r) return;
+      gc.classList.remove('is-open');
       r.classList.remove('is-open');
     }
 
