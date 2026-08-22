@@ -91,8 +91,8 @@ import FlowDiagram from './FlowDiagram.astro';
     height: 57.3%;
     transform: translateX(-50%);
     box-sizing: border-box;
-    padding: 7% 7%;
-    border: 8px solid transparent;
+    padding: 7% 0 7% 2%;
+    border: 3px solid transparent;
     border-radius: 22px;
     z-index: 3;
     display: flex;
@@ -109,14 +109,14 @@ import FlowDiagram from './FlowDiagram.astro';
     transition: opacity 0.4s ease;
   }
   .poem-on-screen::-webkit-scrollbar {
-    width: 6px;
+    width: 1px;
   }
   .poem-on-screen::-webkit-scrollbar-track {
     background: transparent;
   }
   .poem-on-screen::-webkit-scrollbar-thumb {
     background: var(--branch-color, #6741d9);
-    border-radius: 6px;
+    border-radius: 1px;
   }
   #gc.is-open .poem-on-screen {
     opacity: 1;
