@@ -13,10 +13,10 @@ import FlowDiagram from './FlowDiagram.astro';
   <button class="btn btn-dpad-down" data-action="down" aria-label="Вниз"><img src="/Q_polar/приставка/вниз.png" alt="" /></button>
   <button class="btn btn-big-1" data-action="open" aria-label="Большая 1"><img src="/Q_polar/приставка/большая 1.png" alt="" /></button>
   <button class="btn btn-big-2" data-action="open" aria-label="Большая 2"><img src="/Q_polar/приставка/большая 2.png" alt="" /></button>
-  <button class="btn btn-small-1" data-action="open" aria-label="Маленькая 1"><img src="/Q_polar/приставка/маленькая 1.png" alt="" /></button>
-  <button class="btn btn-small-2" data-action="open" aria-label="Маленькая 2"><img src="/Q_polar/приставка/маленькая 2.png" alt="" /></button>
-  <button class="btn btn-horizontal" data-action="enter" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
-  <button class="btn btn-top-solo" data-action="open" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
+  <button class="btn btn-small-1" data-action="small1" aria-label="Маленькая 1"><img src="/Q_polar/приставка/маленькая 1.png" alt="" /></button>
+  <button class="btn btn-small-2" data-action="small2" aria-label="Маленькая 2"><img src="/Q_polar/приставка/маленькая 2.png" alt="" /></button>
+  <button class="btn btn-horizontal" data-action="enter2" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
+  <button class="btn btn-top-solo" data-action="top" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
 </section>
 <style>
   #gc {
@@ -121,15 +121,24 @@ import FlowDiagram from './FlowDiagram.astro';
   .btn.pressed img {
     filter: brightness(0.7) drop-shadow(0 0 8px rgba(103, 65, 217, 0.95));
   }
-  .btn-dpad-up    { left: 28.2%; top: 56.2%; width: 8.4%; height: 6.2%; }
-  .btn-dpad-left  { left: 21.5%; top: 61.5%; width: 8.4%; height: 6.2%; }
+  .btn.held {
+    transform: scale(0.9);
+  }
+  .btn-horizontal.held {
+    transform: scale(0.96);
+  }
+  .btn.held img {
+    filter: brightness(0.7) drop-shadow(0 0 8px rgba(103, 65, 217, 0.95));
+  }
+  .btn-dpad-up    { left: 28.40%; top: 56.3%; width: 8.4%; height: 6.2%; }
+  .btn-dpad-left  { left: 21.8%; top: 61.5%; width: 8.4%; height: 6.2%; }
   .btn-dpad-right { left: 35.1%; top: 61.5%; width: 8.4%; height: 6.2%; }
-  .btn-dpad-down  { left: 28.4%; top: 66.4%; width: 8.4%; height: 6.2%; }
+  .btn-dpad-down  { left: 28.45%; top: 66.5%; width: 8.4%; height: 6.2%; }
   .btn-big-1      { left: 54.8%; top: 62.4%; width: 11.6%; height: 8.6%; }
-  .btn-big-2      { left: 67.1%; top: 59.2%; width: 10.9%; height: 8.1%; }
-  .btn-small-1    { left: 34.3%; top: 73.8%; width: 11.0%; height: 8.2%; }
-  .btn-small-2    { left: 45.4%; top: 73.8%; width: 11.0%; height: 8.2%; }
-  .btn-horizontal { left: 14.2%; top: 82.4%; width: 35.5%; height: 8.2%; }
+  .btn-big-2      { left: 66.83%; top: 59.0%; width: 11.45%; height: 8.5%; }
+  .btn-small-1    { left: 34.3%; top: 73.7%; width: 11.0%; height: 8.2%; }
+  .btn-small-2    { left: 45.4%; top: 73.7%; width: 11.0%; height: 8.2%; }
+  .btn-horizontal { left: 14.95%; top: 82.75%; width: 33.7%; height: 7.8%; }
   .btn-top-solo   { left: 26.9%; top: 49.0%; width: 6.7%; height: 4.9%; }
 </style>
 
@@ -434,26 +443,42 @@ import FlowDiagram from './FlowDiagram.astro';
       return a > 30;
     }
 
+    function act(btn) {
+      const action = btn.dataset.action;
+      if (action === 'up') machine.up();
+      else if (action === 'left') machine.left();
+      else if (action === 'right') machine.right();
+      else if (action === 'down') machine.down();
+      else if (action === 'open') machine.open();
+      // 'small1','small2','enter2','top' и любые новые — пока не назначены: без действия
+    }
+    function pulse(btn) {
+      btn.classList.remove('pressed');
+      void btn.offsetWidth;
+      btn.classList.add('pressed');
+      setTimeout(() => btn.classList.remove('pressed'), 220);
+    }
+
     gc.querySelectorAll('.btn').forEach(btn => {
       const img = btn.querySelector('img');
       if (img) loadAlpha(img.src);
-      btn.addEventListener('click', (e) => {
-        const wasKey = btn._key; btn._key = false;
-        if (!wasKey && img && !isOpaque(img, e.clientX, e.clientY)) return;
-        const action = btn.dataset.action;
-        if (action === 'up') machine.up();
-        else if (action === 'left') machine.left();
-        else if (action === 'right') machine.right();
-        else if (action === 'down') machine.down();
-        else if (action === 'enter') machine.open();
-        else machine.open();
-        btn.classList.remove('pressed');
-        void btn.offsetWidth;
-        btn.classList.add('pressed');
-        setTimeout(() => btn.classList.remove('pressed'), 220);
+      let held = false;
+      btn.addEventListener('pointerdown', (e) => {
+        if (img && !isOpaque(img, e.clientX, e.clientY)) return;
+        held = true;
+        btn.classList.add('held');
       });
+      const release = () => {
+        if (!held) return;
+        held = false;
+        btn.classList.remove('held');
+        act(btn);
+      };
+      btn.addEventListener('pointerup', release);
+      btn.addEventListener('pointerleave', () => { held = false; btn.classList.remove('held'); });
+      btn.addEventListener('pointercancel', () => { held = false; btn.classList.remove('held'); });
       btn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn._key = true; btn.click(); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(btn); pulse(btn); }
       });
     });
 
