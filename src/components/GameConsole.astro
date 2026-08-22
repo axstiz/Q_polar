@@ -112,8 +112,8 @@ import FlowDiagram from './FlowDiagram.astro';
   }
   .screen-reveal .reveal-img--back { z-index: 1; transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) 0.12s, opacity 0.3s ease 0.12s; }
   .screen-reveal .reveal-img--front { z-index: 2; transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease; }
-  .screen-reveal.is-open .reveal-img--back { opacity: 1; transform: translateY(55%); }
-  .screen-reveal.is-open .reveal-img--front { opacity: 1; transform: translateY(88%); }
+  #gc.is-open .screen-reveal .reveal-img--back { opacity: 1; transform: translateY(55%); }
+  #gc.is-open .screen-reveal .reveal-img--front { opacity: 1; transform: translateY(88%); }
   .spkr {
     position: absolute;
     left: 50%;
@@ -510,20 +510,12 @@ import FlowDiagram from './FlowDiagram.astro';
       setTimeout(() => btn.classList.remove('pressed'), 220);
     }
     function revealScreen() {
-      const r = gc.querySelector('.screen-reveal');
-      if (!r) return;
       gc.classList.remove('is-open');
       void gc.offsetWidth;
       gc.classList.add('is-open');
-      r.classList.remove('is-open');
-      void r.offsetWidth;
-      r.classList.add('is-open');
     }
     function closeReveal() {
-      const r = gc.querySelector('.screen-reveal');
-      if (!r) return;
       gc.classList.remove('is-open');
-      r.classList.remove('is-open');
     }
 
     gc.querySelectorAll('.btn').forEach(btn => {
