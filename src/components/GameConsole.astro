@@ -6,6 +6,10 @@ import FlowDiagram from './FlowDiagram.astro';
   <div class="screen">
     <FlowDiagram />
   </div>
+  <div class="screen-reveal" aria-hidden="true">
+    <img class="reveal-img reveal-img--back" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
+    <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
+  </div>
   <div class="spkr"><span></span><span></span><span></span><span></span></div>
   <button class="btn btn-dpad-up" data-action="up" aria-label="Вверх"><img src="/Q_polar/приставка/вверх.png" alt="" /></button>
   <button class="btn btn-dpad-left" data-action="left" aria-label="Влево"><img src="/Q_polar/приставка/влево.png" alt="" /></button>
@@ -28,6 +32,8 @@ import FlowDiagram from './FlowDiagram.astro';
     --screen-w: 84%;
     --screen-h: 52%;
     --spkr-bottom: 5%;
+    --reveal-w: calc(1524 / 1656 * 100% * 1.1 * 0.98 * 1.01 * 0.995 * 1.002);
+    --reveal-top: calc(var(--screen-top) + 2%);
     position: relative;
     margin: 0 auto;
     width: min(100%, 760px);
@@ -52,7 +58,7 @@ import FlowDiagram from './FlowDiagram.astro';
     width: var(--screen-w);
     height: var(--screen-h);
     overflow: hidden;
-    z-index: 1;
+    z-index: 3;
   }
   #gc :global(.flow-svg) {
     position: absolute;
@@ -60,10 +66,36 @@ import FlowDiagram from './FlowDiagram.astro';
     width: 100% !important;
     height: 100% !important;
     display: block;
-    z-index: 1;
+    z-index: 3;
     transform: scale(0.6156);
     transform-origin: center;
   }
+  .screen-reveal {
+    position: absolute;
+    left: 50%;
+    top: calc(50% - 15.4%);
+    transform: translate(-50%, -50%);
+    width: var(--reveal-w);
+    aspect-ratio: 1524 / 590;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .screen-reveal .reveal-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    opacity: 0;
+    transform: translateY(-110%);
+    transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 -2px 6px rgba(0, 0, 0, 0.45));
+  }
+  .screen-reveal .reveal-img--back { z-index: 1; }
+  .screen-reveal .reveal-img--front { z-index: 2; transition-delay: 0.12s; }
+  .screen-reveal.is-open .reveal-img { opacity: 1; transform: translateY(0); }
   .spkr {
     position: absolute;
     left: 50%;
@@ -72,7 +104,7 @@ import FlowDiagram from './FlowDiagram.astro';
     display: flex;
     gap: 4px;
     justify-content: center;
-    z-index: 2;
+    z-index: 1;
   }
   .spkr span {
     width: 6px;
@@ -82,7 +114,7 @@ import FlowDiagram from './FlowDiagram.astro';
   }
   .btn {
     position: absolute;
-    z-index: 2;
+    z-index: 1;
     border: none;
     background: none;
     padding: 0;
@@ -403,7 +435,7 @@ import FlowDiagram from './FlowDiagram.astro';
         case 'ArrowLeft': e.preventDefault(); machine.left(); break;
         case 'ArrowUp': e.preventDefault(); machine.up(); break;
         case 'ArrowDown': e.preventDefault(); machine.down(); break;
-        case 'Enter': case ' ': e.preventDefault(); machine.open(); break;
+        case 'Enter': case ' ': e.preventDefault(); revealScreen(); break;
         case 'Backspace': e.preventDefault(); machine.left(); break;
         case 'Escape': e.preventDefault(); machine.reset(); break;
       }
@@ -449,7 +481,7 @@ import FlowDiagram from './FlowDiagram.astro';
       else if (action === 'left') machine.left();
       else if (action === 'right') machine.right();
       else if (action === 'down') machine.down();
-      else if (action === 'open') machine.open();
+      else if (action === 'open') revealScreen();
       // 'small1','small2','enter2','top' и любые новые — пока не назначены: без действия
     }
     function pulse(btn) {
@@ -457,6 +489,13 @@ import FlowDiagram from './FlowDiagram.astro';
       void btn.offsetWidth;
       btn.classList.add('pressed');
       setTimeout(() => btn.classList.remove('pressed'), 220);
+    }
+    function revealScreen() {
+      const r = gc.querySelector('.screen-reveal');
+      if (!r) return;
+      r.classList.remove('is-open');
+      void r.offsetWidth;
+      r.classList.add('is-open');
     }
 
     gc.querySelectorAll('.btn').forEach(btn => {
