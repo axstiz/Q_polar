@@ -483,7 +483,8 @@ import FlowDiagram from './FlowDiagram.astro';
       else if (action === 'right') machine.right();
       else if (action === 'down') machine.down();
       else if (action === 'open') revealScreen();
-      // 'small1','small2','enter2','top' и любые новые — пока не назначены: без действия
+      else if (action === 'enter2') closeReveal();
+      // 'small1','small2','top' и любые новые — пока не назначены: без действия
     }
     function pulse(btn) {
       btn.classList.remove('pressed');
@@ -497,6 +498,11 @@ import FlowDiagram from './FlowDiagram.astro';
       r.classList.remove('is-open');
       void r.offsetWidth;
       r.classList.add('is-open');
+    }
+    function closeReveal() {
+      const r = gc.querySelector('.screen-reveal');
+      if (!r) return;
+      r.classList.remove('is-open');
     }
 
     gc.querySelectorAll('.btn').forEach(btn => {
