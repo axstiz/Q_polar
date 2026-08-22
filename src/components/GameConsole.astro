@@ -7,6 +7,16 @@ import FlowDiagram from './FlowDiagram.astro';
     <FlowDiagram />
   </div>
   <div class="spkr"><span></span><span></span><span></span><span></span></div>
+  <button class="btn btn-dpad-up" data-action="up" aria-label="Вверх"><img src="/Q_polar/приставка/вверх.png" alt="" /></button>
+  <button class="btn btn-dpad-left" data-action="left" aria-label="Влево"><img src="/Q_polar/приставка/влево.png" alt="" /></button>
+  <button class="btn btn-dpad-right" data-action="right" aria-label="Вправо"><img src="/Q_polar/приставка/вправо.png" alt="" /></button>
+  <button class="btn btn-dpad-down" data-action="down" aria-label="Вниз"><img src="/Q_polar/приставка/вниз.png" alt="" /></button>
+  <button class="btn btn-big-1" data-action="open" aria-label="Большая 1"><img src="/Q_polar/приставка/большая 1.png" alt="" /></button>
+  <button class="btn btn-big-2" data-action="open" aria-label="Большая 2"><img src="/Q_polar/приставка/большая 2.png" alt="" /></button>
+  <button class="btn btn-small-1" data-action="open" aria-label="Маленькая 1"><img src="/Q_polar/приставка/маленькая 1.png" alt="" /></button>
+  <button class="btn btn-small-2" data-action="open" aria-label="Маленькая 2"><img src="/Q_polar/приставка/маленькая 2.png" alt="" /></button>
+  <button class="btn btn-horizontal" data-action="enter" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
+  <button class="btn btn-top-solo" data-action="open" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
 </section>
 <style>
   #gc {
@@ -70,6 +80,43 @@ import FlowDiagram from './FlowDiagram.astro';
     border-radius: 2px;
     background: #5b5b6b;
   }
+  .btn {
+    position: absolute;
+    z-index: 2;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    pointer-events: all;
+    user-select: none;
+    outline: none;
+    margin: 0;
+  }
+  .btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+  }
+  .btn:focus-visible {
+    outline: 2px solid #6741d9;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .btn:active img {
+    filter: brightness(0.75);
+  }
+  .btn-dpad-up    { left: 21.0%; top: 51.5%; width: 10.3%; height: 7.7%; }
+  .btn-dpad-left  { left: 15.1%; top: 57.8%; width: 10.3%; height: 7.7%; }
+  .btn-dpad-right { left: 27.2%; top: 57.8%; width: 10.3%; height: 7.7%; }
+  .btn-dpad-down  { left: 21.0%; top: 62.7%; width: 10.3%; height: 7.7%; }
+  .btn-big-1      { left: 53.4%; top: 61.2%; width: 8.8%; height: 6.5%; }
+  .btn-big-2      { left: 68.6%; top: 57.3%; width: 7.9%; height: 5.8%; }
+  .btn-small-1    { left: 36.1%; top: 74.4%; width: 5.4%; height: 4.0%; }
+  .btn-small-2    { left: 46.4%; top: 74.4%; width: 5.4%; height: 4.0%; }
+  .btn-horizontal { left: 21.5%; top: 82.9%; width: 12.1%; height: 2.7%; }
+  .btn-top-solo   { left: 27.2%; top: 45.8%; width: 5.4%; height: 4.0%; }
 </style>
 
 <script>
@@ -339,6 +386,21 @@ import FlowDiagram from './FlowDiagram.astro';
       }
     };
     window.addEventListener('keydown', press);
+
+    gc.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        if (action === 'up') machine.up();
+        else if (action === 'left') machine.left();
+        else if (action === 'right') machine.right();
+        else if (action === 'down') machine.down();
+        else if (action === 'enter') machine.open();
+        else machine.open();
+      });
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+      });
+    });
 
   });
 </script>
