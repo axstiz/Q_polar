@@ -2,6 +2,7 @@
 import FlowDiagram from './FlowDiagram.astro';
 ---
 <section id="gc">
+  <img class="console-base" src="/Q_polar/console-base.png" alt="" />
   <div class="screen">
     <FlowDiagram />
   </div>
@@ -12,21 +13,36 @@ import FlowDiagram from './FlowDiagram.astro';
     outline: none !important;
   }
   #gc {
+    --screen-top: 2%;
+    --screen-left: 8%;
+    --screen-w: 84%;
+    --screen-h: 52%;
+    --spkr-bottom: 5%;
     position: relative;
     margin: 0 auto;
-    width: min(100%, 640px);
+    width: min(100%, 760px);
+    aspect-ratio: 1656 / 2225;
     font-family: 'Excalifont', sans-serif;
     text-align: center;
-    padding: 16px;
-    padding-top: 4px;
+  }
+  .console-base {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
   }
   .screen {
-    position: relative;
-    width: 100%;
-    max-width: 577px;
-    aspect-ratio: 577 / 436;
-    margin: 0 auto;
+    position: absolute;
+    top: var(--screen-top);
+    left: var(--screen-left);
+    width: var(--screen-w);
+    height: var(--screen-h);
     overflow: hidden;
+    z-index: 1;
   }
   #gc :global(.flow-svg) {
     position: absolute;
@@ -35,12 +51,18 @@ import FlowDiagram from './FlowDiagram.astro';
     height: 100% !important;
     display: block;
     z-index: 1;
+    transform: scale(0.6156);
+    transform-origin: center;
   }
   .spkr {
+    position: absolute;
+    left: 50%;
+    bottom: var(--spkr-bottom);
+    transform: translateX(-50%);
     display: flex;
     gap: 4px;
     justify-content: center;
-    margin-top: 14px;
+    z-index: 2;
   }
   .spkr span {
     width: 6px;
@@ -76,6 +98,15 @@ import FlowDiagram from './FlowDiagram.astro';
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    const gc = document.getElementById('gc');
+    if (gc) {
+      const availW = gc.parentElement ? gc.parentElement.clientWidth : window.innerWidth;
+      const availH = window.innerHeight - 80;
+      const aspect = 1656 / 2225;
+      const w = Math.max(280, Math.min(availW, availH * aspect, 760));
+      gc.style.width = w + 'px';
+    }
+
     const svg = document.querySelector('.flow-svg');
     if (!svg) return;
 
