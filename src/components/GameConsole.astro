@@ -438,7 +438,7 @@ import FlowDiagram from './FlowDiagram.astro';
         case 'ArrowDown': e.preventDefault(); machine.down(); break;
         case 'Enter': case ' ': e.preventDefault(); revealScreen(); break;
         case 'Backspace': e.preventDefault(); machine.left(); break;
-        case 'Escape': e.preventDefault(); machine.reset(); break;
+        case 'Escape': e.preventDefault(); closeReveal(); break;
       }
     };
     window.addEventListener('keydown', press);
