@@ -60,6 +60,7 @@ import FlowDiagram from './FlowDiagram.astro';
     height: var(--screen-h);
     overflow: hidden;
     z-index: 3;
+    transition: opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
   .screen-backdrop {
     position: absolute;
@@ -76,6 +77,10 @@ import FlowDiagram from './FlowDiagram.astro';
   }
   #gc.is-open .screen-backdrop {
     height: 57.3%;
+  }
+  #gc.is-open .screen {
+    opacity: 0;
+    pointer-events: none;
   }
   #gc :global(.flow-svg) {
     position: absolute;
