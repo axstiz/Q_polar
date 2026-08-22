@@ -7,6 +7,7 @@ import FlowDiagram from './FlowDiagram.astro';
     <FlowDiagram />
   </div>
   <div class="screen-backdrop" aria-hidden="true"></div>
+  <div class="poem-on-screen" aria-hidden="true"></div>
   <div class="screen-reveal" aria-hidden="true">
     <img class="reveal-img reveal-img--back" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
     <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
@@ -81,6 +82,51 @@ import FlowDiagram from './FlowDiagram.astro';
   #gc.is-open .screen {
     opacity: 0;
     pointer-events: none;
+  }
+  .poem-on-screen {
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    width: 43%;
+    height: 57.3%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    padding: 7% 6%;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+    text-align: left;
+    overflow: auto;
+    color: #2a2420;
+    font-family: var(--font-handwritten);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  #gc.is-open .poem-on-screen {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.7s ease 0.9s;
+  }
+  .poem-on-screen :global(.poem-title) {
+    color: var(--accent-blue);
+    font-size: clamp(0.85rem, 1.5vw, 1.15rem);
+    margin: 0 0 0.6em;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .poem-on-screen :global(.poem-text) {
+    font-size: clamp(0.7rem, 1.2vw, 0.95rem);
+    line-height: 1.5;
+    white-space: pre-line;
+    text-align: left;
+  }
+  .poem-on-screen :global(.poem-line) {
+    margin: 0;
+  }
+  .poem-on-screen :global(.poem-line.empty) {
+    height: 1em;
   }
   #gc :global(.flow-svg) {
     position: absolute;
@@ -199,6 +245,7 @@ import FlowDiagram from './FlowDiagram.astro';
 
 <script>
   import { NavigationMachine } from '../lib/navMachine.js';
+  import { getPoem } from '../data/poems.js';
 
   const LABELS: Record<string, string> = {
     'Intro': 'intro',
@@ -453,6 +500,10 @@ import FlowDiagram from './FlowDiagram.astro';
     machine.subscribe(apply);
 
     const press = (e: KeyboardEvent) => {
+      if (gc.classList.contains('is-open')) {
+        if (e.key === 'Escape') { e.preventDefault(); closeReveal(); }
+        return;
+      }
       switch (e.key) {
         case 'ArrowRight': e.preventDefault(); machine.right(); break;
         case 'ArrowLeft': e.preventDefault(); machine.left(); break;
@@ -500,6 +551,7 @@ import FlowDiagram from './FlowDiagram.astro';
 
     function act(btn) {
       const action = btn.dataset.action;
+      if (gc.classList.contains('is-open') && ['up', 'down', 'left', 'right'].includes(action)) return;
       if (action === 'up') machine.up();
       else if (action === 'left') machine.left();
       else if (action === 'right') machine.right();
@@ -514,7 +566,32 @@ import FlowDiagram from './FlowDiagram.astro';
       btn.classList.add('pressed');
       setTimeout(() => btn.classList.remove('pressed'), 220);
     }
+    const BRANCH_COLORS: Record<string, string> = {
+      top: '#6741d9',
+      bottom: '#e03131',
+      shared: '#9775fa',
+    };
+    const poemEl = gc.querySelector('.poem-on-screen');
+    function renderPoem(id) {
+      const p = getPoem(id);
+      if (!poemEl) return;
+      if (!p) { poemEl.replaceChildren(); return; }
+      const title = document.createElement('div');
+      title.className = 'poem-title';
+      title.textContent = p.title;
+      title.style.color = BRANCH_COLORS[p.branch] || 'var(--accent-blue)';
+      const text = document.createElement('div');
+      text.className = 'poem-text';
+      for (const line of p.lines) {
+        const ln = document.createElement('p');
+        ln.className = 'poem-line' + (line === '' ? ' empty' : '');
+        ln.textContent = line;
+        text.appendChild(ln);
+      }
+      poemEl.replaceChildren(title, text);
+    }
     function revealScreen() {
+      renderPoem(machine.current);
       gc.classList.remove('is-open');
       void gc.offsetWidth;
       gc.classList.add('is-open');
