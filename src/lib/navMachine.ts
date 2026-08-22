@@ -61,14 +61,14 @@ export interface NavTransition {
 // right/left — умная логика на основе prev; up/down — явная карта
 const map: Record<NodeId, NavTransition> = {
   intro:  { up: 'none', down: 'none' },  // стартовая
-  coal:   { up: 'settings', down: 'face_id' },
+  coal:   { up: 'settings', down: 'face_id', right: 'none' },
   settings: {
     down: 'face_id',
     left: null, // ← coal
   },
   blaze: {
     up: 'klyatva-exo',
-    down: 'blue_screen',
+    down: 'trace',
     left: null, // ← settings
   },
   blue_screen: {
@@ -91,7 +91,7 @@ const map: Record<NodeId, NavTransition> = {
     left: null, // ← trace
   },
   'klyatva-exo': {
-    down: 'blue_screen', // «мостик» → продолжение верхнего трека
+    down: 'blaze', // «мостик» → продолжение верхнего трека
     left: null,    // Blaze
   },
 };
@@ -113,7 +113,7 @@ export class NavigationMachine {
   right(): boolean {
     const node = map[this._current];
     if (!node) return false;
-    const rightTarget = OVERRIDE_RIGHT[this._current] ?? this.rightDefaultChild(this._current);
+    const rightTarget = node.right ?? (OVERRIDE_RIGHT[this._current] ?? this.rightDefaultChild(this._current));
     if (rightTarget && rightTarget !== 'none') {
       this.pushHistory();
       this._current = rightTarget;
