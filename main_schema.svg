@@ -246,4 +246,13 @@
       <rect x="-85" y="-34" width="170" height="68" rx="10" fill="white" stroke="#bbb" stroke-width="2"/>
       <text x="0" y="2" font-size="36" fill="#e03131" text-anchor="middle" dominant-baseline="middle">I-666</text>
     </g>
-  </g><g class="trace-blood-wrapper"><g class="trace-blood-drop" pointer-events="none"><path class="blood-drop-line" d="M0,-8 C4,-8 6,-4 6,0 C6,5 3,8 0,9 C-3,8 -6,5 -6,0 C-6,-4 -4,-8 0,-8 Z" fill="#b71c1c"/></g></g></svg>
+  </g><g class="trace-blood-wrapper"><g class="trace-blood-drop" pointer-events="none"><path class="blood-drop-line" d="M0,-8 C4,-8 6,-4 6,0 C6,5 3,8 0,9 C-3,8 -6,5 -6,0 C-6,-4 -4,-8 0,-8 Z" fill="#b71c1c"/></g></g><defs>
+  <pattern id="scanlines" width="2433.3334350585938" height="8" patternUnits="userSpaceOnUse">
+    <rect x="0" y="0" width="2433.3334350585938" height="1" fill="#1e1e1e"/>
+  </pattern>
+  <filter id="scan-soft" x="-5%" y="-5%" width="110%" height="110%">
+    <feGaussianBlur stdDeviation="0.6"/>
+  </filter>
+</defs>
+<rect class="scan-overlay" x="0" y="0" width="2433.3334350585938" height="2439.731725908132" rx="180" ry="180" fill="url(#scanlines)" filter="url(#scan-soft)" opacity="0.08" pointer-events="none"/>
+</svg>
