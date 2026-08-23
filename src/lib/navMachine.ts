@@ -159,7 +159,8 @@ export class NavigationMachine {
 
   /** Открыть текущий стих */
   open(): string {
-    const base = import.meta.env.BASE_URL ?? '';
+    const rawBase = import.meta.env.BASE_URL ?? '';
+    const base = rawBase.endsWith('/') ? rawBase.slice(0, -1) : rawBase;
     const slug = SLUGS[this._current] ?? this._current;
     window.location.href = `${base}/poems/${slug}`;
     return this._current;
