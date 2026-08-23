@@ -37,8 +37,9 @@ import FlowDiagram from './FlowDiagram.astro';
   #gc {
     outline: none !important;
     flex: none;
-    --screen-dx: 0.39cqw;
+    --screen-dx: 0.29cqw;
     --screen-dy: 0.39cqw;
+    --reveal-shift-y: 4%;
     --screen-top: calc(-1.34% - var(--screen-dy));
     --screen-left: calc(-17.23% - var(--screen-dx));
     --screen-w: 134.27%;
@@ -208,7 +209,7 @@ import FlowDiagram from './FlowDiagram.astro';
   .screen-reveal {
     position: absolute;
     left: 50%;
-    top: calc(50% - 16.13%);
+    top: calc(50% - 16.13% - var(--reveal-shift-y));
     transform: translate(-50%, -50%);
     width: var(--reveal-w);
     aspect-ratio: 1524 / 590;
