@@ -621,7 +621,8 @@ import FlowDiagram from './FlowDiagram.astro';
       return a > 30;
     }
 
-    const base = import.meta.env.BASE_URL ?? '/';
+    const rawBase = import.meta.env.BASE_URL ?? '/';
+    const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
     const TRACK_SLUGS: Record<string, string> = {
       blue_screen: 'blue-screen',
       face_id: 'face-id',
@@ -629,6 +630,7 @@ import FlowDiagram from './FlowDiagram.astro';
     };
     const audio = new Audio();
     audio.preload = 'none';
+    audio.addEventListener('error', () => console.warn('[gc] audio error:', audio.src));
     let currentTrack = '';
     function playMusic() {
       const slug = TRACK_SLUGS[machine.current] ?? machine.current;
@@ -636,7 +638,7 @@ import FlowDiagram from './FlowDiagram.astro';
         audio.src = `${base}audio/${slug}.mp3`;
         currentTrack = slug;
       }
-      audio.play().catch(() => {});
+      audio.play().catch((err) => console.warn('[gc] audio play failed:', err));
     }
     function pauseMusic() {
       audio.pause();
