@@ -1,0 +1,689 @@
+---
+import FlowDiagram from './FlowDiagram.astro';
+---
+<section id="gc">
+  <img class="console-base" src="/Q_polar/console-base.png" alt="" />
+  <div class="screen">
+    <FlowDiagram />
+  </div>
+  <div class="screen-backdrop" aria-hidden="true"></div>
+  <div class="poem-on-screen" aria-hidden="true"></div>
+  <div class="screen-mask" aria-hidden="true"></div>
+  <div class="screen-reveal" aria-hidden="true">
+    <img class="reveal-img reveal-img--back" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
+    <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
+  </div>
+  <div class="spkr"><span></span><span></span><span></span><span></span></div>
+  <button class="btn btn-dpad-up" data-action="up" aria-label="Вверх"><img src="/Q_polar/приставка/вверх.png" alt="" /></button>
+  <button class="btn btn-dpad-left" data-action="left" aria-label="Влево"><img src="/Q_polar/приставка/влево.png" alt="" /></button>
+  <button class="btn btn-dpad-right" data-action="right" aria-label="Вправо"><img src="/Q_polar/приставка/вправо.png" alt="" /></button>
+  <button class="btn btn-dpad-down" data-action="down" aria-label="Вниз"><img src="/Q_polar/приставка/вниз.png" alt="" /></button>
+  <button class="btn btn-big-1" data-action="open" aria-label="Большая 1"><img src="/Q_polar/приставка/большая 1.png" alt="" /></button>
+  <button class="btn btn-big-2" data-action="open" aria-label="Большая 2"><img src="/Q_polar/приставка/большая 2.png" alt="" /></button>
+      <button class="btn btn-small-1" data-action="small1" aria-label="Пауза"><img src="/Q_polar/приставка/маленькая 1.png" alt="" /></button>
+      <button class="btn btn-small-2" data-action="small2" aria-label="Воспроизвести"><img src="/Q_polar/приставка/маленькая 2.png" alt="" /></button>
+  <button class="btn btn-horizontal" data-action="enter2" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
+  <button class="btn btn-top-solo" data-action="top" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
+</section>
+<style>
+  #gc {
+    outline: none !important;
+  }
+  #gc {
+    --screen-top: 2%;
+    --screen-left: 8%;
+    --screen-w: 84%;
+    --screen-h: 52%;
+    --spkr-bottom: 5%;
+    --reveal-w: calc(1524 / 1656 * 100% * 1.1 * 0.98 * 1.01 * 0.995 * 1.002);
+    --reveal-top: calc(var(--screen-top) + 2%);
+    position: relative;
+    margin: 0 auto;
+    width: min(100%, 760px);
+    aspect-ratio: 1656 / 2225;
+    font-family: 'Excalifont', sans-serif;
+    text-align: center;
+  }
+  .console-base {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+  }
+  .screen {
+    position: absolute;
+    top: var(--screen-top);
+    left: var(--screen-left);
+    width: var(--screen-w);
+    height: var(--screen-h);
+    overflow: hidden;
+    z-index: 3;
+    pointer-events: none;
+    transition: opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .screen-backdrop {
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    width: 43%;
+    height: 32%;
+    transform: translateX(-50%);
+    background: #fffce8;
+    border-radius: 12px;
+    z-index: 2;
+    pointer-events: none;
+    transition: height 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  #gc.is-open .screen-backdrop {
+    height: 57.3%;
+  }
+  .screen-mask {
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    width: 43%;
+    height: 32%;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    z-index: 4;
+    pointer-events: none;
+    overflow: hidden;
+    background: repeating-linear-gradient(to bottom,
+      rgba(30, 30, 30, 0.04) 0,
+      rgba(30, 30, 30, 0.04) 0.4px,
+      transparent 0.4px,
+      transparent 2.5px);
+    transition: height 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  #gc.is-open .screen-mask {
+    height: 57.3%;
+  }
+  #gc.is-open .screen {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .poem-on-screen {
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    width: 43%;
+    height: 57.3%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    padding: 7% 0 7% 2%;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+    text-align: left;
+    overflow: auto;
+    color: #2a2420;
+    font-family: var(--font-handwritten);
+    opacity: 0;
+    pointer-events: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--branch-color, #6741d9) transparent;
+    transition: opacity 0.4s ease;
+  }
+  .poem-on-screen::-webkit-scrollbar {
+    width: 1px;
+  }
+  .poem-on-screen::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .poem-on-screen::-webkit-scrollbar-thumb {
+    background: var(--branch-color, #6741d9);
+    border-radius: 1px;
+  }
+  #gc.is-open .poem-on-screen {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.7s ease 0.9s;
+  }
+  .poem-on-screen :global(.poem-title) {
+    color: var(--accent-blue);
+    font-size: 13px;
+    margin: 0 0 0.6em;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .poem-on-screen :global(.poem-text) {
+    font-size: 8px;
+    line-height: 1.5;
+    white-space: pre-line;
+    text-align: left;
+  }
+  .poem-on-screen :global(.poem-line) {
+    margin: 0;
+  }
+  .poem-on-screen :global(.poem-line.empty) {
+    height: 1em;
+  }
+  #gc :global(.flow-svg) {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    z-index: 3;
+    transform: scale(0.6156);
+    transform-origin: center;
+  }
+  .screen-reveal {
+    position: absolute;
+    left: 50%;
+    top: calc(50% - 15.4%);
+    transform: translate(-50%, -50%);
+    width: var(--reveal-w);
+    aspect-ratio: 1524 / 590;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .screen-reveal .reveal-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 -2px 6px rgba(0, 0, 0, 0.45));
+  }
+  .screen-reveal .reveal-img--back { z-index: 1; transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) 0.12s, opacity 0.3s ease 0.12s; }
+  .screen-reveal .reveal-img--front { z-index: 2; transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease; }
+  #gc.is-open .screen-reveal .reveal-img--back { opacity: 1; transform: translateY(55%); }
+  #gc.is-open .screen-reveal .reveal-img--front { opacity: 1; transform: translateY(88%); }
+  .spkr {
+    position: absolute;
+    left: 50%;
+    bottom: var(--spkr-bottom);
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    z-index: 0;
+  }
+  .spkr span {
+    width: 6px;
+    height: 18px;
+    border-radius: 2px;
+    background: #5b5b6b;
+  }
+  .btn {
+    position: absolute;
+    z-index: 0;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    pointer-events: all;
+    user-select: none;
+    outline: none;
+    margin: 0;
+    transform-origin: center;
+    transition: transform 0.09s ease-out;
+  }
+  .btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+    transition: filter 0.12s ease-out, transform 0.09s ease-out;
+  }
+  .btn:focus-visible {
+    outline: 2px solid #6741d9;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .btn:hover img {
+    filter: brightness(1.1);
+  }
+  @keyframes btnPulse {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(0.88); }
+    100% { transform: scale(1); }
+  }
+  .btn.pressed {
+    animation: btnPulse 0.2s ease-out;
+  }
+  .btn.pressed img {
+    filter: brightness(0.7) drop-shadow(0 0 8px rgba(103, 65, 217, 0.95));
+  }
+  .btn.held {
+    transform: scale(0.9);
+  }
+  .btn-horizontal.held {
+    transform: scale(0.96);
+  }
+  .btn.held img {
+    filter: brightness(0.7) drop-shadow(0 0 8px rgba(103, 65, 217, 0.95));
+  }
+  .btn-dpad-up    { left: 28.40%; top: 56.3%; width: 8.4%; height: 6.2%; }
+  .btn-dpad-left  { left: 21.8%; top: 61.5%; width: 8.4%; height: 6.2%; }
+  .btn-dpad-right { left: 35.1%; top: 61.5%; width: 8.4%; height: 6.2%; }
+  .btn-dpad-down  { left: 28.45%; top: 66.5%; width: 8.4%; height: 6.2%; }
+  .btn-big-1      { left: 54.8%; top: 62.4%; width: 11.6%; height: 8.6%; }
+  .btn-big-2      { left: 66.83%; top: 59.0%; width: 11.45%; height: 8.5%; }
+  .btn-small-1    { left: 34.3%; top: 73.7%; width: 11.0%; height: 8.2%; }
+  .btn-small-2    { left: 45.4%; top: 73.7%; width: 11.0%; height: 8.2%; }
+  .btn-horizontal { left: 14.95%; top: 82.75%; width: 33.7%; height: 7.8%; }
+  .btn-top-solo   { left: 26.9%; top: 49.0%; width: 6.7%; height: 4.9%; }
+</style>
+
+<script>
+  import { NavigationMachine } from '../lib/navMachine.js';
+  import { getPoem } from '../data/poems.js';
+
+  const LABELS: Record<string, string> = {
+    'Intro': 'intro',
+    'Coal': 'coal',
+    'Settings': 'settings',
+    'Клятва': 'klyatva-exo',
+    'экзоскелета': 'klyatva-exo',
+    'Blaze': 'blaze',
+    'Лаstick': 'lastick',
+    'tRace': 'trace',
+    'Blue screen': 'blue_screen',
+    'Face id': 'face_id',
+    'Collapse': 'collapse',
+  };
+
+  const SIMPLE: Record<string, string[]> = {
+    intro: ['.intro-dots', '.intro-dots-mirror'],
+    coal: ['.coal-elements'],
+    settings: ['.settings-effects'],
+    blaze: ['.blaze-flames'],
+    blue_screen: ['.blue-screen-effects'],
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const gc = document.getElementById('gc');
+    if (gc) {
+      const availW = gc.parentElement ? gc.parentElement.clientWidth : window.innerWidth;
+      const availH = window.innerHeight - 80;
+      const aspect = 1656 / 2225;
+      const w = Math.max(280, Math.min(availW, availH * aspect, 760));
+      gc.style.width = w + 'px';
+    }
+
+    const svg = document.querySelector('.flow-svg');
+    if (!svg) return;
+
+    const nodes = new Map<string, { border: Element; text: Element }>();
+    const isBorder = (e: Element | null): e is Element =>
+      !!e && e.tagName === 'g' && e.getAttribute('stroke-linecap') === 'round';
+    svg.querySelectorAll('text').forEach((textEl) => {
+      const text = (textEl.textContent || '').trim();
+      const id = LABELS[text];
+      if (!id || nodes.has(id)) return;
+      const textGroup = textEl.parentElement;
+      if (!textGroup || textGroup.tagName !== 'g') return;
+      const candidates = [textGroup.previousElementSibling, textGroup.nextElementSibling].filter(isBorder);
+      let best: Element | null = null;
+      if (candidates.length === 1) {
+        best = candidates[0];
+      } else if (candidates.length > 1) {
+        try {
+          const tb = textEl.getBBox();
+          const cx = tb.x + tb.width / 2;
+          const cy = tb.y + tb.height / 2;
+          for (const b of candidates) {
+            const bb = b.getBBox();
+            if (cx >= bb.x && cx <= bb.x + bb.width && cy >= bb.y && cy <= bb.y + bb.height) {
+              best = b;
+              break;
+            }
+          }
+        } catch { /* ignore unrendered group */ }
+        if (!best) best = candidates[0];
+      }
+      if (best) {
+        best.classList.add('block-border');
+        textGroup.classList.add('block-text');
+        nodes.set(id, { border: best, text: textGroup });
+      }
+    });
+
+    const q = (sel: string): Element | null => svg.querySelector(sel);
+    const add = (sel: string) => q(sel)?.classList.add('animate');
+    const del = (sel: string) => q(sel)?.classList.remove('animate');
+
+    let dropTimer: number | undefined;
+    const traceLine = q('.trace-border-line');
+    const bloodWrapper = q('.trace-blood-wrapper');
+    const bloodDrop = q('.trace-blood-drop');
+    const startTrace = () => {
+      if (!traceLine) return;
+      traceLine.classList.add('animate');
+      if (bloodWrapper && bloodDrop) {
+        const parent = traceLine.parentElement;
+        const tr = parent ? (parent.getAttribute('transform') || '') : '';
+        const m = tr.match(/translate\(([\d.]+)[,\s]+([\d.]+)\)/);
+        const bx = m ? parseFloat(m[1]) : 1255.79;
+        const by = m ? parseFloat(m[2]) : 1243.49;
+        bloodWrapper.setAttribute('transform', `translate(${bx + Math.random() * 235.2}, ${by + 235.2 * 0.65 + 18})`);
+      }
+      dropTimer = window.setTimeout(() => bloodDrop?.classList.add('animate'), 1500);
+    };
+    const stopTrace = () => {
+      traceLine?.classList.remove('animate');
+      bloodDrop?.classList.remove('animate');
+      if (dropTimer) { clearTimeout(dropTimer); dropTimer = undefined; }
+    };
+
+    let lockTimer: number | undefined;
+    const faceIdGroup = q('.face-id-effects');
+    const startFace = () => {
+      faceIdGroup?.classList.add('animate');
+      lockTimer = window.setTimeout(() => faceIdGroup?.classList.add('unlocked'), 1500);
+    };
+    const stopFace = () => {
+      faceIdGroup?.classList.remove('animate');
+      faceIdGroup?.classList.remove('unlocked');
+      if (lockTimer) { clearTimeout(lockTimer); lockTimer = undefined; }
+    };
+
+    const NS = 'http://www.w3.org/2000/svg';
+    let startCollapse: (() => void) | undefined;
+    let stopCollapse: (() => void) | undefined;
+    const collapseNode = nodes.get('collapse');
+    if (collapseNode) {
+      const border = collapseNode.border;
+      const clones: Element[] = [];
+      const cloneCount = 7;
+      const opacities = [0.55, 0.45, 0.36, 0.28, 0.21, 0.15, 0.10];
+      const offsets: { x: number; y: number }[] = [];
+      const targets: { x: number; y: number }[] = [];
+      let frame = 0;
+      let active = false;
+      let prev = 0;
+      const container = document.createElementNS(NS, 'g');
+      container.classList.add('collapse-echoes');
+      container.style.pointerEvents = 'none';
+      svg.appendChild(container);
+      const borderTransform = border.getAttribute('transform') || '';
+      for (let i = 0; i < cloneCount; i++) {
+        const clone = border.cloneNode(true) as Element;
+        clone.removeAttribute('class');
+        (clone as SVGElement).style.opacity = '0';
+        container.appendChild(clone);
+        clones.push(clone);
+        offsets.push({ x: 0, y: 0 });
+        targets.push({ x: 0, y: 0 });
+      }
+      const tick = (now: number) => {
+        if (!prev) prev = now;
+        const dt = now - prev;
+        prev = now;
+        for (let i = 0; i < cloneCount; i++) {
+          if (dt > 0 && Math.random() < 0.08) {
+            targets[i].x = (Math.random() - 0.5) * 20;
+            targets[i].y = (Math.random() - 0.5) * 20;
+          }
+          const k = 0.04;
+          offsets[i].x += (targets[i].x - offsets[i].x) * k;
+          offsets[i].y += (targets[i].y - offsets[i].y) * k;
+          const scale = 1 + (i + 1) * 0.04;
+          clones[i].setAttribute('transform',
+            `${borderTransform} translate(117.6, 78.4) scale(${scale}) translate(${-117.6 + offsets[i].x}, ${-78.4 + offsets[i].y})`);
+          (clones[i] as SVGElement).style.opacity = String(opacities[i]);
+        }
+        if (active) frame = requestAnimationFrame(tick);
+      };
+      startCollapse = () => {
+        active = true;
+        prev = 0;
+        for (let i = 0; i < cloneCount; i++) { offsets[i] = { x: 0, y: 0 }; targets[i] = { x: 0, y: 0 }; }
+        if (!frame) frame = requestAnimationFrame(tick);
+      };
+      stopCollapse = () => {
+        active = false;
+        for (const c of clones) (c as SVGElement).style.opacity = '0';
+        if (frame) { cancelAnimationFrame(frame); frame = 0; }
+      };
+    }
+
+    const lastickLabel = q('.lastick-label');
+    const meText = lastickLabel?.querySelector('.label-me');
+    const eraserGroup = lastickLabel?.querySelector('.label-eraser');
+    let eraseProgress = 0;
+    let eraseTarget = 0;
+    let eraseFrame = 0;
+    let erasePrev = 0;
+    let eraseDelay: number | undefined;
+    const eraseTick = (now: number) => {
+      if (!erasePrev) erasePrev = now;
+      const dt = now - erasePrev;
+      erasePrev = now;
+      const dir = eraseTarget > eraseProgress ? 1 : -1;
+      eraseProgress = Math.max(0, Math.min(1, eraseProgress + dir * (dt / 1000)));
+      if (eraserGroup) {
+        eraserGroup.setAttribute('transform', `translate(${-100 + 240 * eraseProgress}, 0)`);
+        eraserGroup.setAttribute('opacity', String(Math.min(1, eraseProgress * 3)));
+      }
+      if (meText) {
+        (meText as SVGElement).style.clipPath = `inset(0 0 0 ${eraseProgress * 100}%)`;
+        meText.style.opacity = eraseProgress < 0.05 ? '1' : String(1 - eraseProgress);
+      }
+      if (eraseProgress !== eraseTarget) {
+        eraseFrame = requestAnimationFrame(eraseTick);
+      } else {
+        eraseFrame = 0;
+        if (eraseTarget === 0 && meText) {
+          meText.style.opacity = '1';
+          meText.style.clipPath = 'inset(0 0 0 0)';
+        }
+      }
+    };
+    const startLastick = () => {
+      if (eraseDelay) { clearTimeout(eraseDelay); eraseDelay = undefined; }
+      eraseTarget = 1;
+      if (!eraseFrame) { erasePrev = 0; eraseFrame = requestAnimationFrame(eraseTick); }
+    };
+    const stopLastick = () => {
+      eraseTarget = 0;
+      if (eraseDelay) clearTimeout(eraseDelay);
+      eraseDelay = window.setTimeout(() => {
+        if (!eraseFrame) { erasePrev = 0; eraseFrame = requestAnimationFrame(eraseTick); }
+      }, 0);
+    };
+
+    const noop = () => {};
+    const ENTER: Record<string, () => void> = {
+      intro: () => SIMPLE.intro.forEach(add),
+      coal: () => add('.coal-elements'),
+      settings: () => add('.settings-effects'),
+      blaze: () => add('.blaze-flames'),
+      blue_screen: () => add('.blue-screen-effects'),
+      trace: startTrace,
+      face_id: startFace,
+      collapse: startCollapse ?? noop,
+      lastick: startLastick,
+    };
+    const LEAVE: Record<string, () => void> = {
+      intro: () => SIMPLE.intro.forEach(del),
+      coal: () => del('.coal-elements'),
+      settings: () => del('.settings-effects'),
+      blaze: () => del('.blaze-flames'),
+      blue_screen: () => del('.blue-screen-effects'),
+      trace: stopTrace,
+      face_id: stopFace,
+      collapse: stopCollapse ?? noop,
+      lastick: stopLastick,
+    };
+
+    const machine = new NavigationMachine();
+    let current: string | null = null;
+
+    const apply = (node: string) => {
+      if (current && LEAVE[current]) LEAVE[current]();
+      current = node;
+      svg.querySelectorAll('.block-border.selected').forEach((b) => b.classList.remove('selected'));
+      const info = nodes.get(node);
+      if (info) info.border.classList.add('selected');
+      if (ENTER[node]) ENTER[node]();
+    };
+
+    machine.subscribe(apply);
+
+    const press = (e: KeyboardEvent) => {
+      if (gc.classList.contains('is-open')) {
+        if (e.key === 'Escape') { e.preventDefault(); closeReveal(); }
+        return;
+      }
+      switch (e.key) {
+        case 'ArrowRight': e.preventDefault(); machine.right(); break;
+        case 'ArrowLeft': e.preventDefault(); machine.left(); break;
+        case 'ArrowUp': e.preventDefault(); machine.up(); break;
+        case 'ArrowDown': e.preventDefault(); machine.down(); break;
+        case 'Enter': case ' ': e.preventDefault(); revealScreen(); break;
+        case 'Backspace': e.preventDefault(); machine.left(); break;
+        case 'Escape': e.preventDefault(); closeReveal(); break;
+      }
+    };
+    window.addEventListener('keydown', press);
+
+    const alphaCache = new Map();
+    function loadAlpha(src) {
+      if (alphaCache.has(src)) return;
+      alphaCache.set(src, null);
+      const im = new Image();
+      im.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = im.naturalWidth; c.height = im.naturalHeight;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(im, 0, 0);
+        let rec = null;
+        try {
+          const data = ctx.getImageData(0, 0, c.width, c.height).data;
+          rec = { data, w: c.width, h: c.height };
+        } catch (err) { rec = null; }
+        alphaCache.set(src, rec);
+      };
+      im.src = src;
+    }
+    function isOpaque(img, clientX, clientY) {
+      const rec = alphaCache.get(img.src);
+      if (!rec) return true;
+      const r = img.getBoundingClientRect();
+      const scale = Math.min(r.width / rec.w, r.height / rec.h);
+      const offX = (r.width - rec.w * scale) / 2;
+      const offY = (r.height - rec.h * scale) / 2;
+      const x = (clientX - r.left - offX) / scale;
+      const y = (clientY - r.top - offY) / scale;
+      if (x < 0 || y < 0 || x >= rec.w || y >= rec.h) return false;
+      const a = rec.data[((y | 0) * rec.w + (x | 0)) * 4 + 3];
+      return a > 30;
+    }
+
+    const base = import.meta.env.BASE_URL ?? '/';
+    const TRACK_SLUGS: Record<string, string> = {
+      blue_screen: 'blue-screen',
+      face_id: 'face-id',
+      'klyatva-exo': 'klyatva',
+    };
+    const audio = new Audio();
+    audio.preload = 'none';
+    let currentTrack = '';
+    function playMusic() {
+      const slug = TRACK_SLUGS[machine.current] ?? machine.current;
+      if (currentTrack !== slug) {
+        audio.src = `${base}audio/${slug}.mp3`;
+        currentTrack = slug;
+      }
+      audio.play().catch(() => {});
+    }
+    function pauseMusic() {
+      audio.pause();
+    }
+    function act(btn) {
+      const action = btn.dataset.action;
+      if (gc.classList.contains('is-open') && ['up', 'down', 'left', 'right'].includes(action)) return;
+      if (action === 'up') machine.up();
+      else if (action === 'left') machine.left();
+      else if (action === 'right') machine.right();
+      else if (action === 'down') machine.down();
+      else if (action === 'open') revealScreen();
+      else if (action === 'enter2') closeReveal();
+      else if (action === 'small1') pauseMusic();
+      else if (action === 'small2') playMusic();
+      // 'top' и любые новые — пока не назначены: без действия
+    }
+    function pulse(btn) {
+      btn.classList.remove('pressed');
+      void btn.offsetWidth;
+      btn.classList.add('pressed');
+      setTimeout(() => btn.classList.remove('pressed'), 220);
+    }
+    const BRANCH_COLORS: Record<string, string> = {
+      top: '#e03131',
+      bottom: '#6741d9',
+      shared: '#6741d9',
+    };
+    const poemEl = gc.querySelector('.poem-on-screen');
+    function renderPoem(id) {
+      const p = getPoem(id);
+      if (!poemEl) return;
+      if (!p) { poemEl.replaceChildren(); return; }
+      const title = document.createElement('div');
+      title.className = 'poem-title';
+      title.textContent = p.title;
+      const branchColor = BRANCH_COLORS[p.branch] || '#6741d9';
+      title.style.color = branchColor;
+      poemEl.style.setProperty('--branch-color', branchColor);
+      const text = document.createElement('div');
+      text.className = 'poem-text';
+      for (const line of p.lines) {
+        const ln = document.createElement('p');
+        ln.className = 'poem-line' + (line === '' ? ' empty' : '');
+        ln.textContent = line;
+        text.appendChild(ln);
+      }
+      poemEl.replaceChildren(title, text);
+    }
+    function revealScreen() {
+      renderPoem(machine.current);
+      gc.classList.remove('is-open');
+      void gc.offsetWidth;
+      gc.classList.add('is-open');
+    }
+    function closeReveal() {
+      gc.classList.remove('is-open');
+    }
+
+    gc.querySelectorAll('.btn').forEach(btn => {
+      const img = btn.querySelector('img');
+      if (img) loadAlpha(img.src);
+      let held = false;
+      btn.addEventListener('pointerdown', (e) => {
+        if (img && !isOpaque(img, e.clientX, e.clientY)) return;
+        held = true;
+        btn.classList.add('held');
+      });
+      const release = () => {
+        if (!held) return;
+        held = false;
+        btn.classList.remove('held');
+        act(btn);
+      };
+      btn.addEventListener('pointerup', release);
+      btn.addEventListener('pointerleave', () => { held = false; btn.classList.remove('held'); });
+      btn.addEventListener('pointercancel', () => { held = false; btn.classList.remove('held'); });
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(btn); pulse(btn); }
+      });
+    });
+
+  });
+</script>
+

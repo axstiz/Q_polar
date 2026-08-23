@@ -350,4 +350,14 @@ a:hover {
   pointer-events: none;
 }
 
+/* ===== Раскладка страницы стиха ===== */
+
+.poem-layout {
+  display: block;
+}
+
+.poem-content {
+  min-width: 0;
+}
+
 /* Тёмная тема отключена —始终保持 кремовый фон как на исходной схеме */

@@ -1,0 +1,48 @@
+<svg class="hologram-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .h-exo-pulse {
+      transform-origin: 100px 100px;
+      animation: exoPulse 3s ease-in-out infinite;
+    }
+    @keyframes exoPulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+  </style>
+  <g class="h-exo-pulse" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+    <g stroke-width="2" opacity="0.3" transform="translate(3, 3)">
+      <path d="M100 20 L155 55 L155 130 L100 170 L45 130 L45 55 Z" />
+      <path d="M100 45 L138 68 L138 118 L100 145 L62 118 L62 68 Z" />
+    </g>
+
+    <g stroke-width="2.5" opacity="0.5">
+      <path d="M100 20 L155 55 L155 130 L100 170 L45 130 L45 55 Z" />
+      <path d="M100 45 L138 68 L138 118 L100 145 L62 118 L62 68 Z" />
+    </g>
+
+    <g stroke-width="1.5" opacity="0.4">
+      <path d="M45 55 L62 68" />
+      <path d="M155 55 L138 68" />
+      <path d="M45 130 L62 118" />
+      <path d="M155 130 L138 118" />
+      <path d="M100 20 L100 45" />
+      <path d="M100 170 L100 145" />
+    </g>
+
+    <g stroke-width="2" opacity="0.8">
+      <path d="M80 80 L100 70 L120 80 L120 120 L100 130 L80 120 Z" />
+      <line x1="100" y1="70" x2="100" y2="55" />
+      <line x1="120" y1="80" x2="135" y2="72" />
+      <line x1="120" y1="120" x2="135" y2="128" />
+      <line x1="80" y1="80" x2="65" y2="72" />
+      <line x1="80" y1="120" x2="65" y2="128" />
+    </g>
+
+    <g stroke-width="1.5" opacity="0.6">
+      <circle cx="100" cy="100" r="8" stroke="#e03131" />
+      <circle cx="100" cy="100" r="3" fill="#e03131" stroke="none" />
+    </g>
+
+  </g>
+</svg>

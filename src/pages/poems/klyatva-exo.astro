@@ -1,0 +1,20 @@
+---
+/**
+ * Страница стиха "Клятва экзоскелета"
+ * Верхняя ветка: Blaze → Клятва экзоскелета → Collapse
+ */
+import PoemLayout from '../../layouts/PoemLayout.astro';
+import { getPoem, getNextPoems, getPrevPoems } from '../../data/poems';
+
+const poem = getPoem('klyatva-exo')!;
+const nextPoems = getNextPoems('klyatva-exo').map(p => ({ title: p.title, slug: p.slug }));
+const prevPoems = getPrevPoems('klyatva-exo').map(p => ({ title: p.title, slug: p.slug }));
+---
+
+<PoemLayout
+  title={poem.title}
+  lines={poem.lines}
+  prevPoems={prevPoems}
+  nextPoems={nextPoems}
+  branch={poem.branch}
+/>

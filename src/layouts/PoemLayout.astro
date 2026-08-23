@@ -7,17 +7,18 @@
  * - lines: массив строк стиха
  * - prevPoems: массив предыдущих стихов (для навигации "назад")
  * - nextPoems: массив следующих стихов (для навигации "вперёд")
+ * - branch: ветка графа ('top' | 'bottom' | 'shared')
  */
 interface Props {
   title: string;
   lines: string[];
   prevPoems: { title: string; slug: string }[];
   nextPoems: { title: string; slug: string }[];
+  branch: 'top' | 'bottom' | 'shared';
 }
 
-const { title, lines, prevPoems, nextPoems } = Astro.props;
+const { title, lines, prevPoems, nextPoems, branch } = Astro.props;
 
-// Базовый путь для ссылок (учитывает base в astro.config.mjs)
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -30,71 +31,73 @@ const base = import.meta.env.BASE_URL;
   </head>
   <body>
     <main class="container">
-      <!-- Кнопка возврата к интерактивной схеме -->
-      <a href={`${base}/`} class="back-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
-        К схеме
-      </a>
+      <div class="poem-layout">
+        <div class="poem-content">
+          <!-- Кнопка возврата к интерактивной схеме -->
+          <a href={`${base}/`} class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            К схеме
+          </a>
 
-      <!-- Название стиха -->
-      <h1 class="poem-title">{title}</h1>
+          <!-- Название стиха -->
+          <h1 class="poem-title">{title}</h1>
 
-      <!-- Текст стиха с анимацией появления строк -->
-      <div class="poem-text">
-        {lines.map((line, i) => (
-          <p
-            class:list={['poem-line', { empty: line === '' }]}
-            style={`animation-delay: ${i * 0.3}s`}
-          >
-            {line}
-          </p>
-        ))}
+          <!-- Текст стиха с анимацией появления строк -->
+          <div class="poem-text">
+            {lines.map((line, i) => (
+              <p
+                class:list={['poem-line', { empty: line === '' }]}
+                style={`animation-delay: ${i * 0.3}s`}
+              >
+                {line}
+              </p>
+            ))}
+          </div>
+
+          <!-- Навигация между стихами -->
+          <nav class="nav-arrows">
+            <div class="nav-prev">
+              {prevPoems.length > 0 ? (
+                prevPoems.map((p) => (
+                  <a href={`${base}/poems/${p.slug}`} class="nav-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                      <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    {p.title}
+                  </a>
+                ))
+              ) : (
+                <span class="nav-arrow disabled">—</span>
+              )}
+            </div>
+
+            <div class="nav-next">
+              {nextPoems.length > 0 ? (
+                nextPoems.map((p) => (
+                  <a href={`${base}/poems/${p.slug}`} class="nav-arrow">
+                    {p.title}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                ))
+              ) : (
+                <span class="nav-arrow disabled">Конец</span>
+              )}
+            </div>
+          </nav>
+        </div>
       </div>
-
-      <!-- Навигация между стихами -->
-      <nav class="nav-arrows">
-        <div class="nav-prev">
-          {prevPoems.length > 0 ? (
-            prevPoems.map((p) => (
-              <a href={`${base}/poems/${p.slug}`} class="nav-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                  <path d="M19 12H5M12 19l-7-7 7-7" />
-                </svg>
-                {p.title}
-              </a>
-            ))
-          ) : (
-            <span class="nav-arrow disabled">—</span>
-          )}
-        </div>
-
-        <div class="nav-next">
-          {nextPoems.length > 0 ? (
-            nextPoems.map((p) => (
-              <a href={`${base}/poems/${p.slug}`} class="nav-arrow">
-                {p.title}
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </a>
-            ))
-          ) : (
-            <span class="nav-arrow disabled">Конец</span>
-          )}
-        </div>
-      </nav>
     </main>
 
     <style>
-      /* Заголовок стиха */
       .poem-title {
         margin-bottom: 2rem;
-        color: var(--accent-red);
+        color: var(--branch-color, var(--accent-blue));
       }
 
-      /* Блок с текстом стиха */
       .poem-text {
         font-family: var(--font-handwritten);
         font-size: 1.4rem;
@@ -102,7 +105,6 @@ const base = import.meta.env.BASE_URL;
         white-space: pre-line;
       }
 
-      /* Навигация: блоки prev и next */
       .nav-prev, .nav-next {
         display: flex;
         gap: 0.5rem;

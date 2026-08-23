@@ -1,4 +1,4 @@
----
+﻿---
 /**
  * FlowDiagram.astro — Интерактивная схема сборника
  *
@@ -14,9 +14,20 @@ const svgContent = readFileSync(svgPath, 'utf-8');
 const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
 ---
 
+<style is:global>
+  @font-face {
+    font-family: 'ExcalifontFull';
+    src: url('/Q_polar/fonts/Excalifont.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+</style>
+
 <div class="diagram-wrapper">
   <svg
-    viewBox="0 0 2433 1520"
+    viewBox="0 0 2433.3334350585938 2439.731725908132"
+    preserveAspectRatio="xMidYMid meet"
     xmlns="http://www.w3.org/2000/svg"
     class="flow-svg"
     set:html={svgBody}
@@ -25,14 +36,14 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
 
 <style>
   .diagram-wrapper { width: 100%; margin: 0 auto; }
-  .flow-svg { width: 100%; height: auto; display: block; }
+  .flow-svg { width: 100%; height: auto; display: block; overflow: visible; }
 
   /* Hover: только подсветка рамки, без движения */
   :global(.block-border) {
     cursor: pointer;
     transition: filter 0.2s ease;
   }
-  :global(.block-border.hovered) {
+  :global(.block-border.selected) {
     filter: drop-shadow(0 0 12px rgba(103, 65, 217, 0.65)) drop-shadow(0 0 4px rgba(103, 65, 217, 0.4));
   }
   :global(.block-text) {
@@ -303,19 +314,90 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
   }
   :global(.blue-screen-effects.animate) {
     opacity: 1;
+    animation: bsPulse 3.5s ease-in-out infinite;
   }
+  @keyframes bsPulse {
+    0%, 100% { filter: none; }
+    50%      { filter: drop-shadow(0 0 4px rgba(103, 65, 217, 0.35)); }
+  }
+
   :global(.bs-crack) {
     stroke-dasharray: 500;
     stroke-dashoffset: 500;
   }
   :global(.blue-screen-effects.animate .bs-crack) {
-    animation-name: crackGrow, crackGlitch;
-    animation-duration: 0.5s, 1.8s;
-    animation-timing-function: ease-out, step-end;
-    animation-delay: var(--d, 0s), calc(var(--g, 0s) + 0.5s);
+    animation-name: crackGrow, crackEvolve, crackColorPulse;
+    animation-duration: 0.5s, 5s, 3.5s;
+    animation-timing-function: ease-out, ease-in-out, ease-in-out;
+    animation-delay: var(--d, 0s), calc(var(--d, 0s) + 0.5s), calc(var(--d, 0s) + 0.5s);
+    animation-fill-mode: forwards, none, none;
+    animation-iteration-count: 1, infinite, infinite;
+  }
+
+  @keyframes crackGrow {
+    0%   { stroke-dashoffset: 500; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  @keyframes crackEvolve {
+    0%   { stroke-dashoffset: 0; opacity: 0.7; transform: translate(0, 0); filter: none; }
+    /* glitch burst */
+    8%   { stroke-dashoffset: 0; opacity: 0.95; transform: translate(-5px, 1px); filter: drop-shadow(2px 0 #ff00ff) drop-shadow(-2px 0 #00ffff); }
+    12%  { stroke-dashoffset: 0; opacity: 0.35; transform: translate(3px, -1px); filter: none; }
+    15%  { stroke-dashoffset: 0; opacity: 0.7; transform: translate(0, 0); filter: none; }
+    /* partial retract — cracks die back */
+    30%  { stroke-dashoffset: 180; opacity: 0.45; }
+    /* re-grow */
+    48%  { stroke-dashoffset: 0; opacity: 0.8; }
+    /* second glitch burst */
+    53%  { stroke-dashoffset: 0; opacity: 0.25; transform: translate(4px, 2px); filter: drop-shadow(-3px 0 #00ffff); }
+    56%  { stroke-dashoffset: 0; opacity: 0.7; transform: translate(0, 0); filter: none; }
+    /* deeper retract */
+    72%  { stroke-dashoffset: 280; opacity: 0.3; }
+    /* re-stabilize */
+    90%  { stroke-dashoffset: 0; opacity: 0.7; }
+    100% { stroke-dashoffset: 0; opacity: 0.7; }
+  }
+
+  @keyframes crackColorPulse {
+    0%, 100% { stroke: #6741d9; }
+    30%      { stroke: #e03131; }
+    55%      { stroke: #e03131; }
+    80%      { stroke: #6741d9; }
+  }
+
+  /* Secondary cracks — appear later, different directions */
+  :global(.bs-crack-alt) {
+    stroke-dasharray: 350;
+    stroke-dashoffset: 350;
+  }
+  :global(.blue-screen-effects.animate .bs-crack-alt) {
+    animation-name: crackAltGrow, crackAltEvolve;
+    animation-duration: 0.8s, 4.5s;
+    animation-timing-function: ease-out, ease-in-out;
+    animation-delay: var(--d, 1.6s), calc(var(--d, 1.6s) + 0.8s);
     animation-fill-mode: forwards, none;
     animation-iteration-count: 1, infinite;
   }
+
+  @keyframes crackAltGrow {
+    0%   { stroke-dashoffset: 350; opacity: 0; }
+    100% { stroke-dashoffset: 0; opacity: 0.6; }
+  }
+
+  @keyframes crackAltEvolve {
+    0%   { stroke-dashoffset: 0; opacity: 0.6; transform: translate(0, 0); }
+    10%  { stroke-dashoffset: 0; opacity: 0.3; transform: translate(2px, -1px); }
+    13%  { stroke-dashoffset: 0; opacity: 0.6; transform: translate(0, 0); }
+    35%  { stroke-dashoffset: 140; opacity: 0.35; }
+    55%  { stroke-dashoffset: 0; opacity: 0.65; }
+    65%  { stroke-dashoffset: 0; opacity: 0.2; transform: translate(-2px, 1px); }
+    68%  { stroke-dashoffset: 0; opacity: 0.6; transform: translate(0, 0); }
+    85%  { stroke-dashoffset: 100; opacity: 0.3; }
+    100% { stroke-dashoffset: 0; opacity: 0.6; }
+  }
+
+  /* Smiley */
   :global(.blue-screen-effects.animate .bs-sad-smiley) {
     animation:
       smileyFade 0.6s ease-out 0.4s forwards,
@@ -342,241 +424,21 @@ const svgBody = svgContent.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
     75%  { opacity: 0.05; }
     90%  { opacity: 0.9; }
   }
-  @keyframes crackGrow {
-    0%   { stroke-dashoffset: 500; }
-    100% { stroke-dashoffset: 0; }
-  }
-  @keyframes crackGlitch {
-    0%, 84%, 100% { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    2%  { transform: translate(-6px, 1px); opacity: 0.9; filter: drop-shadow(2px 0 #ff00ff) drop-shadow(-2px 0 #00ffff); }
-    4%  { transform: translate(4px, -1px); opacity: 0.2; filter: none; }
-    6%  { transform: translate(-2px, 2px); opacity: 0.9; filter: drop-shadow(3px 0 #ff00ff); }
-    8%  { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    14% { transform: translate(7px, 0); opacity: 0.3; filter: drop-shadow(-3px 0 #00ffff); }
-    16% { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    28% { transform: translate(-5px, -2px); opacity: 0.9; filter: drop-shadow(2px 0 #ff00ff) drop-shadow(-2px 0 #00ffff); }
-    30% { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    42% { transform: translate(6px, 1px); opacity: 0.15; }
-    44% { transform: translate(0, 0); opacity: 0.7; }
-    58% { transform: translate(-8px, 0); opacity: 0.9; filter: drop-shadow(4px 0 #ff00ff) drop-shadow(-3px 0 #00ffff); }
-    60% { transform: translate(0, 0); opacity: 0.7; filter: none; }
-    72% { transform: translate(4px, -2px); opacity: 0.1; }
-    74% { transform: translate(0, 0); opacity: 0.7; }
-  }
   @keyframes smileyFade {
     0%   { opacity: 0; }
     100% { opacity: 0.9; }
   }
+
+  /* ===== Lastick: стирание ME / появление I-666 при hover ===== */
+  :global(.lastick-label) {
+    pointer-events: none;
+  }
+  :global(.lastick-label .label-me) {
+    pointer-events: none;
+    font-family: 'ExcalifontFull', sans-serif;
+  }
+  :global(.lastick-label .label-eraser) {
+    pointer-events: none;
+    font-family: 'ExcalifontFull', sans-serif;
+  }
 </style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const svg = document.querySelector('.flow-svg');
-    if (!svg) return;
-
-    const blockMap: Record<string, string> = {
-      'Intro': 'intro',
-      'Coal': 'coal',
-      'Settings': 'settings',
-      'Blaze': 'blaze',
-      'Blue screen': 'blue-screen',
-      'Face id': 'face-id',
-      'tRace': 'trace',
-      'Лаstick': 'lastick',
-      'Collapse': 'collapse',
-    };
-
-    // Находим все <text> элементы
-    const textEls = svg.querySelectorAll('text');
-
-    textEls.forEach((textEl) => {
-      const text = textEl.textContent?.trim() || '';
-      const blockId = blockMap[text];
-      if (!blockId) return;
-
-      const textGroup = textEl.parentElement;
-      if (!textGroup || textGroup.tagName !== 'g') return;
-
-      // Ищем группу рамки — поднимаемся вверх по предыдущим sibling,
-      // пока не найдём <g> со stroke-linecap="round" (рамка)
-      let borderGroup: Element | null = null;
-      let sibling: Element | null = textGroup.previousElementSibling;
-      while (sibling) {
-        if (sibling.tagName === 'g' && sibling.getAttribute('stroke-linecap') === 'round') {
-          borderGroup = sibling;
-          break;
-        }
-        sibling = sibling.previousElementSibling;
-      }
-
-      if (borderGroup) borderGroup.classList.add('block-border');
-      textGroup.classList.add('block-text');
-
-      const highlight = () => {
-        if (borderGroup) borderGroup.classList.add('hovered');
-      };
-      const unhighlight = () => {
-        if (borderGroup) borderGroup.classList.remove('hovered');
-      };
-
-      if (borderGroup) {
-        borderGroup.addEventListener('mouseenter', highlight);
-        borderGroup.addEventListener('mouseleave', unhighlight);
-      }
-      textGroup.addEventListener('mouseenter', highlight);
-      textGroup.addEventListener('mouseleave', unhighlight);
-
-      const navigate = () => {
-        const base = document.documentElement.dataset.base || '';
-        window.location.href = `${base}/poems/${blockId}`;
-      };
-
-      if (borderGroup) borderGroup.addEventListener('click', navigate);
-      textGroup.addEventListener('click', navigate);
-
-      // Coal: анимация ромбов при hover
-      if (blockId === 'coal') {
-        const coalGroup = svg.querySelector('.coal-elements');
-        if (coalGroup) {
-          const startCoal = () => coalGroup.classList.add('animate');
-          const stopCoal = () => coalGroup.classList.remove('animate');
-          if (borderGroup) {
-            borderGroup.addEventListener('mouseenter', startCoal);
-            borderGroup.addEventListener('mouseleave', stopCoal);
-          }
-          textGroup.addEventListener('mouseenter', startCoal);
-          textGroup.addEventListener('mouseleave', stopCoal);
-        }
-      }
-
-      // Intro: анимация точек при hover
-      if (blockId === 'intro') {
-        const dotGroups = svg.querySelectorAll('.intro-dots, .intro-dots-mirror');
-        if (dotGroups.length) {
-          const startDots = () => dotGroups.forEach(g => g.classList.add('animate'));
-          const stopDots = () => dotGroups.forEach(g => g.classList.remove('animate'));
-          if (borderGroup) {
-            borderGroup.addEventListener('mouseenter', startDots);
-            borderGroup.addEventListener('mouseleave', stopDots);
-          }
-          textGroup.addEventListener('mouseenter', startDots);
-          textGroup.addEventListener('mouseleave', stopDots);
-        }
-      }
-
-      // Settings: анимация частиц при hover
-      if (blockId === 'settings') {
-        const settingsGroup = svg.querySelector('.settings-effects');
-        if (settingsGroup) {
-          const startParticles = () => settingsGroup.classList.add('animate');
-          const stopParticles = () => settingsGroup.classList.remove('animate');
-          if (borderGroup) {
-            borderGroup.addEventListener('mouseenter', startParticles);
-            borderGroup.addEventListener('mouseleave', stopParticles);
-          }
-          textGroup.addEventListener('mouseenter', startParticles);
-          textGroup.addEventListener('mouseleave', stopParticles);
-        }
-      }
-
-      // Blaze: анимация языков пламени + лужа при hover
-      if (blockId === 'blaze') {
-        const blazeFlames = svg.querySelector('.blaze-flames');
-        const startBlaze = () => {
-          if (blazeFlames) blazeFlames.classList.add('animate');
-        };
-        const stopBlaze = () => {
-          if (blazeFlames) blazeFlames.classList.remove('animate');
-        };
-        if (borderGroup) {
-          borderGroup.addEventListener('mouseenter', startBlaze);
-          borderGroup.addEventListener('mouseleave', stopBlaze);
-        }
-        textGroup.addEventListener('mouseenter', startBlaze);
-        textGroup.addEventListener('mouseleave', stopBlaze);
-      }
-
-      // tRace: анимация трассировки контура + капля при hover
-      if (blockId === 'trace') {
-        const traceLine = svg.querySelector('.trace-border-line');
-        const bloodDrop = svg.querySelector('.trace-blood-drop');
-        const bloodWrapper = svg.querySelector('.trace-blood-wrapper');
-        if (traceLine) {
-          let dropTimer = null;
-
-          const getTraceBorderPos = () => {
-            const tr = traceLine.parentElement.getAttribute('transform');
-            const m = tr.match(/translate\(([\d.]+),\s*([\d.]+)\)/);
-            if (m) return { bx: parseFloat(m[1]), by: parseFloat(m[2]), bw: 235.2, bh: 156.8 };
-            return { bx: 1255.79, by: 805.14, bw: 235.2, bh: 156.8 };
-          };
-
-          const startTrace = () => {
-            traceLine.classList.add('animate');
-            // случайная X по низу блока
-            if (bloodWrapper) {
-              const { bx, by, bw } = getTraceBorderPos();
-              const randX = bx + Math.random() * bw;
-              bloodWrapper.setAttribute('transform', `translate(${randX}, ${by + bw * 0.65 + 18})`);
-            }
-            dropTimer = setTimeout(() => {
-              if (bloodDrop) bloodDrop.classList.add('animate');
-            }, 1500);
-          };
-          const stopTrace = () => {
-            traceLine.classList.remove('animate');
-            if (bloodDrop) bloodDrop.classList.remove('animate');
-            if (dropTimer) { clearTimeout(dropTimer); dropTimer = null; }
-          };
-          const parentGroup = traceLine.parentElement;
-          if (parentGroup) {
-            parentGroup.addEventListener('mouseenter', startTrace);
-            parentGroup.addEventListener('mouseleave', stopTrace);
-          }
-          textGroup.addEventListener('mouseenter', startTrace);
-          textGroup.addEventListener('mouseleave', stopTrace);
-        }
-      }
-
-      // Blue screen: трещины-паутина + грустный смайлик при hover
-      if (blockId === 'blue-screen') {
-        const bsEffects = svg.querySelector('.blue-screen-effects');
-        if (bsEffects) {
-          const startCracks = () => bsEffects.classList.add('animate');
-          const stopCracks = () => bsEffects.classList.remove('animate');
-          if (borderGroup) {
-            borderGroup.addEventListener('mouseenter', startCracks);
-            borderGroup.addEventListener('mouseleave', stopCracks);
-          }
-          textGroup.addEventListener('mouseenter', startCracks);
-          textGroup.addEventListener('mouseleave', stopCracks);
-        }
-      }
-
-      // Face id: анимация сканирования + замок при hover
-      if (blockId === 'face-id') {
-        const faceIdGroup = svg.querySelector('.face-id-effects');
-        if (faceIdGroup) {
-          let lockTimer = null;
-          const startScan = () => {
-            faceIdGroup.classList.add('animate');
-            lockTimer = setTimeout(() => {
-              faceIdGroup.classList.add('unlocked');
-            }, 1500);
-          };
-          const stopScan = () => {
-            faceIdGroup.classList.remove('animate');
-            faceIdGroup.classList.remove('unlocked');
-            if (lockTimer) { clearTimeout(lockTimer); lockTimer = null; }
-          };
-          if (borderGroup) {
-            borderGroup.addEventListener('mouseenter', startScan);
-            borderGroup.addEventListener('mouseleave', stopScan);
-          }
-          textGroup.addEventListener('mouseenter', startScan);
-          textGroup.addEventListener('mouseleave', stopScan);
-        }
-      }
-    });
-  });
-</script>
