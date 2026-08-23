@@ -1,6 +1,7 @@
 ---
 import FlowDiagram from './FlowDiagram.astro';
 ---
+<div class="console-viewport">
 <section id="gc">
   <img class="console-base" src="/Q_polar/console-base.png" alt="" />
   <div class="screen">
@@ -25,11 +26,17 @@ import FlowDiagram from './FlowDiagram.astro';
   <button class="btn btn-horizontal" data-action="enter2" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
   <button class="btn btn-top-solo" data-action="top" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
 </section>
+</div>
 <style>
-  #gc {
-    outline: none !important;
+  .console-viewport {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
   }
   #gc {
+    outline: none !important;
+    flex: none;
     --screen-top: 2%;
     --screen-left: 8%;
     --screen-w: 84%;
@@ -39,7 +46,7 @@ import FlowDiagram from './FlowDiagram.astro';
     --reveal-top: calc(var(--screen-top) + 2%);
     position: relative;
     margin: 0 auto;
-    width: min(100%, 760px);
+    width: min(100%, calc(100vh * 1656 / 2225));
     aspect-ratio: 1656 / 2225;
     font-family: 'Excalifont', sans-serif;
     text-align: center;
@@ -309,11 +316,22 @@ import FlowDiagram from './FlowDiagram.astro';
   document.addEventListener('DOMContentLoaded', () => {
     const gc = document.getElementById('gc');
     if (gc) {
-      const availW = gc.parentElement ? gc.parentElement.clientWidth : window.innerWidth;
-      const availH = window.innerHeight - 80;
       const aspect = 1656 / 2225;
-      const w = Math.max(280, Math.min(availW, availH * aspect, 760));
-      gc.style.width = w + 'px';
+      const fitConsole = () => {
+        const parent = gc.parentElement;
+        if (!parent) { gc.style.width = Math.max(280, window.innerWidth) + 'px'; return; }
+        const frame = parent.closest('main') ?? parent;
+        const pcs = getComputedStyle(frame);
+        const availW = parent.clientWidth - parseFloat(pcs.paddingLeft) - parseFloat(pcs.paddingRight);
+        const top = frame.getBoundingClientRect().top + parseFloat(pcs.paddingTop);
+        const availH = window.innerHeight - top - parseFloat(pcs.paddingBottom);
+        let w = availH * aspect;
+        const cropPct = (1 - availW / w) / 2;
+        if (cropPct > 0.20) w = availW / 0.6;
+        gc.style.width = Math.max(280, w) + 'px';
+      };
+      fitConsole();
+      window.addEventListener('resize', fitConsole);
     }
 
     const svg = document.querySelector('.flow-svg');
