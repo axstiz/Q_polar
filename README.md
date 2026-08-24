@@ -9,17 +9,20 @@
 ```text
 /
 ├── public/
-│   └── favicon.svg           # Favicon (стилизованная Q)
+│   ├── favicon.svg           # Favicon (стилизованная Q)
+│   ├── favicon.ico           # Fallback favicon
+│   └── audio/                # Аудиотреки (имя = слаг стиха, напр. intro.mp3)
 ├── src/
 │   ├── components/
-│   │   └── FlowDiagram.astro # Интерактивная SVG-схема
+│   │   ├── GameConsole.astro  # Интерактивная консоль (кнопки, навигация, звук)
+│   │   └── FlowDiagram.astro  # Интерактивная SVG-схема сборника
 │   ├── data/
-│   │   └── poems.ts          # Данные стихов + граф навигации
+│   │   └── poems.ts          # Данные стихов (ТЕКСТЫ правятся тут, поле lines) + граф навигации
 │   ├── layouts/
 │   │   └── PoemLayout.astro  # Шаблон страницы стиха
 │   ├── pages/
 │   │   ├── index.astro       # Главная — интерактивная схема
-│   │   └── poems/            # 9 страниц стихов
+│   │   └── poems/            # 10 страниц стихов (+ алиас klyatva)
 │   └── styles/
 │       └── global.css        # Глобальные стили + CSS-анимации
 ├── texts/                    # Исходные тексты стихов (.txt)
@@ -27,13 +30,16 @@
 └── package.json
 ```
 
+> Тексты стихов правятся в `src/data/poems.ts` (поле `lines: string[]`; пустая строка = пауза). Файлы `texts/*.txt` — исходники, в сборку не подключены.
+
 ## Навигация
 
 Схема основана на двуветвящемся графе:
 
 ```
-Intro → Coal → ┬→ Settings → Blaze → Blue screen → Collapse
-                └→ Face id  → tRase → Lastick    ──→ Collapse
+Intro → Coal → ┬→ Settings → Blaze ┬→ Blue screen → Collapse
+               │                   └→ klyatva-exo
+               └→ Face id  → tRace → Lastick     ──→ Collapse
 ```
 
 ## Команды
@@ -54,19 +60,7 @@ Intro → Coal → ┬→ Settings → Blaze → Blue screen → Collapse
 
 ## Анимации
 
-Каждый блок на схеме имеет уникальную анимацию при наведении:
-
-| Блок         | Анимация                        |
-| :----------- | :------------------------------ |
-| Intro        | Вращение мини-солнца            |
-| Coal         | Тлеющие угли (пульсация)        |
-| Settings     | Движение ползунков              |
-| Blaze        | Пламя (мерцание)                |
-| Blue screen  | Глитч-линии (RGB-сдвиг)        |
-| Collapse     | Пульсация концентрических колец |
-| Face id      | Моргание глаз                   |
-| tRase        | Бегущие горизонтальные линии    |
-| Lastick      | Появляющиеся искры              |
+Каждый блок на схеме имеет свою уникальную CSS-анимацию при наведении.
 
 ## Деплой
 
