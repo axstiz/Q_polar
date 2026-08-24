@@ -367,13 +367,6 @@ export function getPoem(id: string): Poem | undefined {
 }
 
 /**
- * Получить стих по slug (URL-путь)
- */
-export function getPoemBySlug(slug: string): Poem | undefined {
-  return poems.find((p) => p.slug === slug);
-}
-
-/**
  * Получить следующий стих(и) по id текущего
  */
 export function getNextPoems(currentId: string): Poem[] {

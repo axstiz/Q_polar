@@ -25,3 +25,13 @@ pnpm-debug.log*
 /.opencode/
 /.venv/
 /.vscode/
+
+# local scratch / source assets not part of the site
+*.orig
+audio_tracks/
+IDEAS.md
+habr_post.md
+резюме.md
+рефренсы/
+приставка/
+public/console-base.png.orig
