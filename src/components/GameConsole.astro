@@ -319,6 +319,12 @@ import FlowDiagram from './FlowDiagram.astro';
   .btn-small-2 { left: 42.55%; top: 73.77%; width: 17.58%; height: 8.59%; }
   .btn-horizontal { left: -6.12%; top: 83.25%; width: 53.87%; height: 8.17%; }
   .btn-top-solo { left: 12.98%; top: 47.89%; width: 10.71%; height: 5.13%; }
+  #gc.is-open .btn-big-1,
+  #gc.is-open .btn-big-2 {
+    opacity: 0.45;
+    filter: grayscale(0.85);
+    transition: opacity 0.25s ease, filter 0.25s ease;
+  }
 </style>
 
 <script>
@@ -645,7 +651,7 @@ import FlowDiagram from './FlowDiagram.astro';
     }
     function act(btn) {
       const action = btn.dataset.action;
-      if (gc.classList.contains('is-open') && ['up', 'down', 'left', 'right'].includes(action)) return;
+      if (gc.classList.contains('is-open') && ['up', 'down', 'left', 'right', 'open'].includes(action)) return;
       if (action === 'up') machine.up();
       else if (action === 'left') machine.left();
       else if (action === 'right') machine.right();
