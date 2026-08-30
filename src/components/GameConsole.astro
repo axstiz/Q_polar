@@ -582,6 +582,11 @@ import FlowDiagram from './FlowDiagram.astro';
     const setAnimated = (on: boolean) => {
       svg.classList.toggle('is-animating', on);
     };
+    let zoomAnimTimer: number | undefined;
+    const scheduleAnimOff = () => {
+      if (zoomAnimTimer) window.clearTimeout(zoomAnimTimer);
+      zoomAnimTimer = window.setTimeout(() => setAnimated(false), 650);
+    };
     const resetZoomStyle = () => {
       svg.style.transform = '';
     };
@@ -594,16 +599,26 @@ import FlowDiagram from './FlowDiagram.astro';
       const scy = sRect.top + sRect.height / 2;
       zoomState.tx += scx - (r.left + r.width / 2);
       zoomState.ty += scy - (r.top + r.height / 2);
-      applyZoomTransform();
+    };
+    const centerOnAnalytic = (nodeId: string) => {
+      const info = nodes.get(nodeId);
+      if (!info) return;
+      const sRect = screenEl.getBoundingClientRect();
+      const eRect = svg.getBoundingClientRect();
+      const r = info.border.getBoundingClientRect();
+      const Sx = sRect.left + sRect.width / 2;
+      const Sy = sRect.top + sRect.height / 2;
+      const Cx = eRect.left + eRect.width / 2;
+      const Cy = eRect.top + eRect.height / 2;
+      const rCx = r.left + r.width / 2;
+      const rCy = r.top + r.height / 2;
+      zoomState.tx = Sx - ZOOM_FACTOR * rCx + (ZOOM_FACTOR - 1) * Cx;
+      zoomState.ty = Sy - ZOOM_FACTOR * rCy + (ZOOM_FACTOR - 1) * Cy;
     };
     const enterZoom = () => {
       zoomState.scale = BASE_SCALE * ZOOM_FACTOR;
-      zoomState.tx = 0;
-      zoomState.ty = 0;
       setAnimated(false);
-      applyZoomTransform();
-      svg.getBoundingClientRect();
-      centerOn(current ?? 'intro');
+      centerOnAnalytic(current ?? 'intro');
       const final = { ...zoomState };
       setAnimated(true);
       resetZoomStyle();
@@ -612,7 +627,7 @@ import FlowDiagram from './FlowDiagram.astro';
       zoomState.tx = final.tx;
       zoomState.ty = final.ty;
       applyZoomTransform();
-      window.setTimeout(() => setAnimated(false), 650);
+      scheduleAnimOff();
     };
     const leaveZoom = () => {
       zoomState.scale = BASE_SCALE;
@@ -620,7 +635,7 @@ import FlowDiagram from './FlowDiagram.astro';
       zoomState.ty = 0;
       setAnimated(true);
       resetZoomStyle();
-      window.setTimeout(() => setAnimated(false), 650);
+      scheduleAnimOff();
     };
     const toggleZoom = () => {
       if (gc.classList.contains('is-open')) return;
@@ -640,7 +655,13 @@ import FlowDiagram from './FlowDiagram.astro';
       const info = nodes.get(node);
       if (info) info.border.classList.add('selected');
       if (ENTER[node]) ENTER[node]();
-      if (zoomOn) centerOn(node);
+      if (zoomOn) {
+        setAnimated(false);
+        centerOn(node);
+        setAnimated(true);
+        applyZoomTransform();
+        scheduleAnimOff();
+      }
     };
 
     machine.subscribe(apply);
