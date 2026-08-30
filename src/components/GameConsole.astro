@@ -10,6 +10,7 @@ import FlowDiagram from './FlowDiagram.astro';
   <div class="screen-backdrop" aria-hidden="true"></div>
   <div class="poem-on-screen" aria-hidden="true"></div>
   <div class="screen-mask" aria-hidden="true"></div>
+  <div class="selected-title" aria-hidden="true"></div>
   <div class="screen-reveal" aria-hidden="true">
     <img class="reveal-img reveal-img--back" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
     <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
@@ -125,6 +126,33 @@ import FlowDiagram from './FlowDiagram.astro';
   }
   #gc.is-open .screen-mask {
     height: 60.02%;
+  }
+  .selected-title {
+    position: absolute;
+    left: calc(50% + 2.5%);
+    top: calc(50% + 0.4%);
+    width: 100%;
+    transform: translate(-50%, -50%);
+    z-index: 6;
+    pointer-events: none;
+    font-family: 'Press Start 2P', monospace;
+    color: #ffffff;
+    text-shadow:
+      0 0 4px rgba(0, 0, 0, 0.7),
+      0 0 10px rgba(0, 0, 0, 0.4),
+      0 2px 6px rgba(0, 0, 0, 0.5);
+    font-size: 2.1875cqw;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  #gc .selected-title.has-title {
+    opacity: 1;
+  }
+  #gc.is-open .selected-title {
+    opacity: 0;
   }
   #gc.is-open .screen {
     opacity: 0;
@@ -349,6 +377,10 @@ import FlowDiagram from './FlowDiagram.astro';
     'Collapse': 'collapse',
   };
 
+  const TITLE_OVERRIDES: Record<string, string> = {
+    'klyatva-exo': 'Клятва EXO',
+  };
+
   const SIMPLE: Record<string, string[]> = {
     intro: ['.intro-dots', '.intro-dots-mirror'],
     coal: ['.coal-elements'],
@@ -364,6 +396,7 @@ import FlowDiagram from './FlowDiagram.astro';
     const svg = document.querySelector('.flow-svg');
     if (!svg) return;
     const screenEl = gc.querySelector('.screen-backdrop');
+    const titleEl = gc.querySelector('.selected-title');
 
     const nodes = new Map<string, { border: Element; text: Element }>();
     const isBorder = (e: Element | null): e is Element =>
@@ -655,6 +688,12 @@ import FlowDiagram from './FlowDiagram.astro';
       const info = nodes.get(node);
       if (info) info.border.classList.add('selected');
       if (ENTER[node]) ENTER[node]();
+      const p = getPoem(node);
+      if (titleEl) {
+        const display = (p && TITLE_OVERRIDES[p.id]) || (p ? p.title : '');
+        titleEl.textContent = display;
+        titleEl.classList.toggle('has-title', !!display);
+      }
       if (zoomOn) {
         setAnimated(false);
         centerOn(node);
