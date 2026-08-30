@@ -20,7 +20,7 @@ import FlowDiagram from './FlowDiagram.astro';
   <button class="btn btn-dpad-right" data-action="right" aria-label="Вправо"><img src="/Q_polar/приставка/вправо.png" alt="" /></button>
   <button class="btn btn-dpad-down" data-action="down" aria-label="Вниз"><img src="/Q_polar/приставка/вниз.png" alt="" /></button>
   <button class="btn btn-big-1" data-action="open" aria-label="Большая 1"><img src="/Q_polar/приставка/большая 1.png" alt="" /></button>
-  <button class="btn btn-big-2" data-action="open" aria-label="Большая 2"><img src="/Q_polar/приставка/большая 2.png" alt="" /></button>
+  <button class="btn btn-big-2" data-action="zoom" aria-label="Большая 2"><img src="/Q_polar/приставка/большая 2.png" alt="" /></button>
       <button class="btn btn-small-1" data-action="small1" aria-label="Пауза"><img src="/Q_polar/приставка/маленькая 1.png" alt="" /></button>
       <button class="btn btn-small-2" data-action="small2" aria-label="Воспроизвести"><img src="/Q_polar/приставка/маленькая 2.png" alt="" /></button>
   <button class="btn btn-horizontal" data-action="enter2" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
@@ -73,6 +73,7 @@ import FlowDiagram from './FlowDiagram.astro';
     width: var(--screen-w);
     height: var(--screen-h);
     overflow: hidden;
+    clip-path: inset(19.22% 24.34% 19.25% 24.47%);
     z-index: 3;
     pointer-events: none;
     transition: opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -205,6 +206,9 @@ import FlowDiagram from './FlowDiagram.astro';
     z-index: 3;
     transform: scale(0.6156);
     transform-origin: center;
+  }
+  #gc :global(.flow-svg.is-animating) {
+    transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
   .screen-reveal {
     position: absolute;
@@ -359,6 +363,7 @@ import FlowDiagram from './FlowDiagram.astro';
 
     const svg = document.querySelector('.flow-svg');
     if (!svg) return;
+    const screenEl = gc.querySelector('.screen-backdrop');
 
     const nodes = new Map<string, { border: Element; text: Element }>();
     const isBorder = (e: Element | null): e is Element =>
@@ -566,6 +571,68 @@ import FlowDiagram from './FlowDiagram.astro';
     const machine = new NavigationMachine();
     let current: string | null = null;
 
+    const ZOOM_FACTOR = 2.5;
+    const BASE_SCALE = 0.6156;
+    const zoomState = { scale: BASE_SCALE, tx: 0, ty: 0 };
+    let zoomOn = false;
+
+    const applyZoomTransform = () => {
+      svg.style.transform = `translate(${zoomState.tx}px, ${zoomState.ty}px) scale(${zoomState.scale})`;
+    };
+    const setAnimated = (on: boolean) => {
+      svg.classList.toggle('is-animating', on);
+    };
+    const resetZoomStyle = () => {
+      svg.style.transform = '';
+    };
+    const centerOn = (nodeId: string) => {
+      const info = nodes.get(nodeId);
+      if (!info) return;
+      const sRect = screenEl.getBoundingClientRect();
+      const r = info.border.getBoundingClientRect();
+      const scx = sRect.left + sRect.width / 2;
+      const scy = sRect.top + sRect.height / 2;
+      zoomState.tx += scx - (r.left + r.width / 2);
+      zoomState.ty += scy - (r.top + r.height / 2);
+      applyZoomTransform();
+    };
+    const enterZoom = () => {
+      zoomState.scale = BASE_SCALE * ZOOM_FACTOR;
+      zoomState.tx = 0;
+      zoomState.ty = 0;
+      setAnimated(false);
+      applyZoomTransform();
+      svg.getBoundingClientRect();
+      centerOn(current ?? 'intro');
+      const final = { ...zoomState };
+      setAnimated(true);
+      resetZoomStyle();
+      svg.getBoundingClientRect();
+      zoomState.scale = final.scale;
+      zoomState.tx = final.tx;
+      zoomState.ty = final.ty;
+      applyZoomTransform();
+      window.setTimeout(() => setAnimated(false), 650);
+    };
+    const leaveZoom = () => {
+      zoomState.scale = BASE_SCALE;
+      zoomState.tx = 0;
+      zoomState.ty = 0;
+      setAnimated(true);
+      resetZoomStyle();
+      window.setTimeout(() => setAnimated(false), 650);
+    };
+    const toggleZoom = () => {
+      if (gc.classList.contains('is-open')) return;
+      if (zoomOn) {
+        zoomOn = false;
+        leaveZoom();
+      } else {
+        zoomOn = true;
+        enterZoom();
+      }
+    };
+
     const apply = (node: string) => {
       if (current && LEAVE[current]) LEAVE[current]();
       current = node;
@@ -573,6 +640,7 @@ import FlowDiagram from './FlowDiagram.astro';
       const info = nodes.get(node);
       if (info) info.border.classList.add('selected');
       if (ENTER[node]) ENTER[node]();
+      if (zoomOn) centerOn(node);
     };
 
     machine.subscribe(apply);
@@ -651,7 +719,7 @@ import FlowDiagram from './FlowDiagram.astro';
     }
     function act(btn) {
       const action = btn.dataset.action;
-      if (gc.classList.contains('is-open') && ['up', 'down', 'left', 'right', 'open'].includes(action)) return;
+      if (gc.classList.contains('is-open') && ['up', 'down', 'left', 'right', 'open', 'zoom'].includes(action)) return;
       if (action === 'up') machine.up();
       else if (action === 'left') machine.left();
       else if (action === 'right') machine.right();
@@ -660,6 +728,7 @@ import FlowDiagram from './FlowDiagram.astro';
       else if (action === 'enter2') closeReveal();
       else if (action === 'small1') pauseMusic();
       else if (action === 'small2') playMusic();
+      else if (action === 'zoom') toggleZoom();
       // 'top' и любые новые — пока не назначены: без действия
     }
     function pulse(btn) {
