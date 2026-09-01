@@ -41,7 +41,7 @@ import FlowDiagram from './FlowDiagram.astro';
   <button class="btn btn-horizontal" data-action="enter2" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
   <button class="btn btn-top-solo" data-action="top" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
   <div class="lower-block">
-    <img src="/Q_polar/приставка/нижний блок.png" alt="" aria-hidden="true" />
+    <div class="lower-block-glass" aria-hidden="true"></div>
     <div class="spectrum-box" aria-hidden="true"><canvas class="spectrum-canvas"></canvas></div>
     <svg class="volume-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="#ffffff" /><path d="M16 8.5a4 4 0 0 1 0 7" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" /><path d="M18.5 6a7 7 0 0 1 0 12" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" /></svg>
     <div class="progress-times" aria-hidden="true">
@@ -286,18 +286,22 @@ import FlowDiagram from './FlowDiagram.astro';
     width: 40.8cqw;
     aspect-ratio: 895 / 1200;
     transform: translate(-12cqw, -120cqw);
-    opacity: 0;
+    opacity: 1;
     z-index: 0;
     pointer-events: none;
-    will-change: transform, opacity;
-    transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease 0.6s;
+    transition: transform 1.1s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
-  .lower-block img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    opacity: 0.8;
+  .lower-block-glass {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 2.6cqw;
+    background: linear-gradient(115deg, rgba(255, 183, 99, 0.015) 0%, rgba(255, 122, 26, 0.008) 45%, rgba(255, 156, 66, 0.012) 72%, rgba(224, 96, 14, 0.02) 100%);
+    border: 0.26cqw solid rgba(255, 222, 175, 0.45);
+    backdrop-filter: blur(2px) saturate(1.1);
+    -webkit-backdrop-filter: blur(2px) saturate(1.1);
+    box-shadow: inset 0 0.18cqw 0.4cqw rgba(255, 233, 200, 0.2), inset 0 -0.55cqw 1.1cqw rgba(150, 55, 0, 0.28), 0 1.2cqw 2.4cqw rgba(0, 0, 0, 0.28);
+    pointer-events: none;
   }
 .volume-icon {
     position: absolute;
@@ -410,7 +414,7 @@ import FlowDiagram from './FlowDiagram.astro';
   #gc.is-open .lower-block {
     transform: translate(0, -16cqw);
     opacity: 1;
-    transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.9s, opacity 0.3s ease 0.9s;
+    transition: transform 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) 0.9s;
   }
   #gc .selected-title.has-title {
     opacity: 1;
