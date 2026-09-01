@@ -1184,7 +1184,6 @@ import FlowDiagram from './FlowDiagram.astro';
       audio.pause();
     }
     function act(btn) {
-      if (btn.classList.contains('disabled')) return;
       const action = btn.dataset.action;
       if (action === 'top') { toggleQR(); return; }
       if (gc.classList.contains('is-qr') && !gc.classList.contains('is-open')) {
@@ -1272,7 +1271,6 @@ import FlowDiagram from './FlowDiagram.astro';
       if (img) loadAlpha(img.src);
       let held = false;
       btn.addEventListener('pointerdown', (e) => {
-        if (btn.classList.contains('disabled')) return;
         if (img && !isOpaque(img, e.clientX, e.clientY)) return;
         held = true;
         btn.classList.add('held');
@@ -1282,6 +1280,7 @@ import FlowDiagram from './FlowDiagram.astro';
         held = false;
         btn.classList.remove('held');
         act(btn);
+        pulse(btn);
       };
       btn.addEventListener('pointerup', release);
       btn.addEventListener('pointerleave', () => { held = false; btn.classList.remove('held'); });
@@ -1289,7 +1288,6 @@ import FlowDiagram from './FlowDiagram.astro';
       btn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          if (btn.classList.contains('disabled')) return;
           act(btn);
           pulse(btn);
         }
