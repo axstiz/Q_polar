@@ -1162,7 +1162,7 @@ import FlowDiagram from './FlowDiagram.astro';
         const src = ctx.createMediaElementSource(audio);
         const node = ctx.createAnalyser();
         node.fftSize = 256;
-        node.smoothingTimeConstant = 0.78;
+        node.smoothingTimeConstant = 0.6;
         src.connect(node);
         node.connect(ctx.destination);
         analyser = node;
@@ -1401,11 +1401,12 @@ import FlowDiagram from './FlowDiagram.astro';
           }
           sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           sctx.clearRect(0, 0, r.width, r.height);
+          const inset = r.width * 0.04;
           let barGap = r.width * 0.05;
-          let barW = (r.width - barGap * (BARS - 1)) / BARS;
+          let barW = (r.width - inset * 2 - barGap * (BARS - 1)) / BARS;
           if (barW < 1.5) {
             barW = 1.5;
-            barGap = BARS > 1 ? (r.width - BARS * barW) / (BARS - 1) : 0;
+            barGap = BARS > 1 ? (r.width - inset * 2 - BARS * barW) / (BARS - 1) : 0;
             if (barGap < 0) barGap = 0;
           }
           const live = analyser && !audio.paused && audio.volume > 0;
@@ -1414,18 +1415,27 @@ import FlowDiagram from './FlowDiagram.astro';
             if (freq.length !== n) freq = new Uint8Array(n);
             analyser!.getByteFrequencyData(freq);
           }
+          const mix = (hex: string, k: number) => {
+            const m = hex.replace('#', '');
+            const r = parseInt(m.slice(0, 2), 16);
+            const g = parseInt(m.slice(2, 4), 16);
+            const b = parseInt(m.slice(4, 6), 16);
+            return `rgb(${Math.round(r + (255 - r) * k)}, ${Math.round(g + (255 - g) * k)}, ${Math.round(b + (255 - b) * k)})`;
+          };
+          const gradTop = mix(accent, 0.55);
+          const gradMid = mix(accent, 0.32);
           for (let i = 0; i < BARS; i++) {
             const v = live
-              ? freq[binOf(i)] / 255
-              : 0.22 + 0.3 * (0.5 + 0.5 * Math.sin(Date.now() / 380 + i * 0.9)) * (0.6 + 0.4 * Math.sin(Date.now() / 160 + i * 2.1));
-            const bh = Math.max(0.18 * r.height, Math.min(1, v) * r.height);
-            const x = i * (barW + barGap);
+              ? Math.pow(freq[binOf(i)] / 255, 1.4) * 0.85
+              : 0.08 + 0.12 * (0.5 + 0.5 * Math.sin(Date.now() / 380 + i * 0.9)) * (0.6 + 0.4 * Math.sin(Date.now() / 160 + i * 2.1));
+            const bh = Math.max(0.05 * r.height, Math.min(1, v) * r.height);
+            const x = inset + i * (barW + barGap);
             const y = r.height - bh;
-            sctx.shadowColor = hexToRgba(accent, 0.85);
-            sctx.shadowBlur = r.height * 0.35;
+            sctx.shadowColor = hexToRgba(accent, 0.7);
+            sctx.shadowBlur = r.height * 0.22;
             const grad = sctx.createLinearGradient(0, y, 0, r.height);
-            grad.addColorStop(0, '#ffffff');
-            grad.addColorStop(0.35, '#ffffff');
+            grad.addColorStop(0, gradTop);
+            grad.addColorStop(0.3, gradMid);
             grad.addColorStop(1, accent);
             sctx.fillStyle = grad;
             const rad = Math.min(barW / 2, r.height * 0.18);
