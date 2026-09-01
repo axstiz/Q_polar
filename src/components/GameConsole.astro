@@ -529,9 +529,24 @@ import FlowDiagram from './FlowDiagram.astro';
     const screenEl = gc.querySelector('.screen-backdrop');
     const titleEl = gc.querySelector('.selected-title');
 
+    const globalBBox = (el: Element) => {
+      const bb = (el as SVGGraphicsElement).getBBox();
+      const owner = (el as SVGGraphicsElement).ownerSVGElement;
+      const ctm = (el as SVGGraphicsElement).getCTM();
+      if (!owner || !ctm) return bb;
+      const p1 = owner.createSVGPoint();
+      p1.x = bb.x;
+      p1.y = bb.y;
+      const p2 = owner.createSVGPoint();
+      p2.x = bb.x + bb.width;
+      p2.y = bb.y + bb.height;
+      const q1 = p1.matrixTransform(ctm);
+      const q2 = p2.matrixTransform(ctm);
+      return { x: Math.min(q1.x, q2.x), y: Math.min(q1.y, q2.y), width: Math.abs(q2.x - q1.x), height: Math.abs(q2.y - q1.y) };
+    };
     const nodes = new Map<string, { border: Element; text: Element }>();
     const isBorder = (e: Element | null): e is Element =>
-      !!e && e.tagName === 'g' && e.getAttribute('stroke-linecap') === 'round';
+      !!e && e.tagName === 'g' && e.getAttribute('stroke-linecap') === 'round' && e.hasAttribute('transform');
     svg.querySelectorAll('text').forEach((textEl) => {
       const text = (textEl.textContent || '').trim();
       const id = LABELS[text];
@@ -544,11 +559,11 @@ import FlowDiagram from './FlowDiagram.astro';
         best = candidates[0];
       } else if (candidates.length > 1) {
         try {
-          const tb = textEl.getBBox();
-          const cx = tb.x + tb.width / 2;
-          const cy = tb.y + tb.height / 2;
+          const tc = globalBBox(textEl);
+          const cx = tc.x + tc.width / 2;
+          const cy = tc.y + tc.height / 2;
           for (const b of candidates) {
-            const bb = b.getBBox();
+            const bb = globalBBox(b);
             if (cx >= bb.x && cx <= bb.x + bb.width && cy >= bb.y && cy <= bb.y + bb.height) {
               best = b;
               break;
@@ -556,6 +571,21 @@ import FlowDiagram from './FlowDiagram.astro';
           }
         } catch { /* ignore unrendered group */ }
         if (!best) best = candidates[0];
+      }
+      if (!best) {
+        try {
+          const tc = globalBBox(textEl);
+          const cx = tc.x + tc.width / 2;
+          const cy = tc.y + tc.height / 2;
+          let bestArea = Infinity;
+          for (const b of svg.querySelectorAll('g[stroke-linecap="round"][transform]')) {
+            const bb = globalBBox(b);
+            if (cx >= bb.x && cx <= bb.x + bb.width && cy >= bb.y && cy <= bb.y + bb.height) {
+              const area = bb.width * bb.height;
+              if (area < bestArea) { bestArea = area; best = b; }
+            }
+          }
+        } catch { /* ignore unrendered group */ }
       }
       if (best) {
         best.classList.add('block-border');
