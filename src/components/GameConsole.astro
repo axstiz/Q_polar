@@ -42,6 +42,7 @@ import FlowDiagram from './FlowDiagram.astro';
   <button class="btn btn-top-solo" data-action="top" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
   <div class="lower-block">
     <img src="/Q_polar/приставка/нижний блок.png" alt="" aria-hidden="true" />
+    <div class="spectrum-box" aria-hidden="true"><canvas class="spectrum-canvas"></canvas></div>
     <svg class="volume-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="#ffffff" /><path d="M16 8.5a4 4 0 0 1 0 7" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" /><path d="M18.5 6a7 7 0 0 1 0 12" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" /></svg>
     <div class="progress-times" aria-hidden="true">
       <span class="progress-time-current">0:00</span>
@@ -307,6 +308,24 @@ import FlowDiagram from './FlowDiagram.astro';
     pointer-events: none;
     opacity: 0.9;
     filter: drop-shadow(0 0 0.4cqw rgba(255, 255, 255, 0.6));
+  }
+.spectrum-box {
+    position: absolute;
+    left: 50%;
+    bottom: 25cqw;
+    width: 26cqw;
+    height: 13cqw;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 1.6cqw;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.95;
+  }
+  .spectrum-box .spectrum-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 .progress-times {
     position: absolute;
@@ -1090,7 +1109,25 @@ import FlowDiagram from './FlowDiagram.astro';
     audio.preload = 'none';
     audio.addEventListener('error', () => console.warn('[gc] audio error:', audio.src));
     let currentTrack = '';
+    let analyser: AnalyserNode | null = null;
+    function ensureAnalyser() {
+      if (analyser) return;
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const src = ctx.createMediaElementSource(audio);
+        const node = ctx.createAnalyser();
+        node.fftSize = 256;
+        node.smoothingTimeConstant = 0.78;
+        src.connect(node);
+        node.connect(ctx.destination);
+        analyser = node;
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      } catch {
+        analyser = null;
+      }
+    }
     function playMusic() {
+      ensureAnalyser();
       const slug = TRACK_SLUGS[machine.current] ?? machine.current;
       if (currentTrack !== slug) {
         audio.src = `${base}audio/${slug}.mp3`;
@@ -1275,6 +1312,81 @@ import FlowDiagram from './FlowDiagram.astro';
       const endScrub = () => { scrubbing = false; };
       progressBar.addEventListener('pointerup', endScrub);
       progressBar.addEventListener('pointercancel', endScrub);
+    }
+
+    const spectrum = gc.querySelector('.spectrum-canvas') as HTMLCanvasElement | null;
+    if (spectrum && spectrum.getContext) {
+      const sctx = spectrum.getContext('2d');
+      if (sctx) {
+        const BARS = 16;
+        let freq = new Uint8Array(0);
+        const binOf = (i: number) => {
+          const n = analyser ? analyser.frequencyBinCount : 64;
+          const lo = Math.log(20), hi = Math.log(12000);
+          const t = Math.pow((i + 0.5) / BARS, 1.35);
+          const f = Math.exp(lo + (hi - lo) * t);
+          return Math.min(n - 1, Math.max(0, Math.round(f / (analyser ? analyser.context.sampleRate : 44100) * n)));
+        };
+        const draw = () => {
+          const r = spectrum.getBoundingClientRect();
+          const dpr = window.devicePixelRatio || 1;
+          const w = Math.max(1, Math.round(r.width * dpr));
+          const h = Math.max(1, Math.round(r.height * dpr));
+          if (spectrum.width !== w || spectrum.height !== h) {
+            spectrum.width = w;
+            spectrum.height = h;
+          }
+          sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          sctx.clearRect(0, 0, r.width, r.height);
+          let barGap = r.width * 0.05;
+          let barW = (r.width - barGap * (BARS - 1)) / BARS;
+          if (barW < 1.5) {
+            barW = 1.5;
+            barGap = BARS > 1 ? (r.width - BARS * barW) / (BARS - 1) : 0;
+            if (barGap < 0) barGap = 0;
+          }
+          const live = analyser && !audio.paused && audio.volume > 0;
+          if (live) {
+            const n = analyser!.frequencyBinCount;
+            if (freq.length !== n) freq = new Uint8Array(n);
+            analyser!.getByteFrequencyData(freq);
+          }
+          for (let i = 0; i < BARS; i++) {
+            const v = live
+              ? freq[binOf(i)] / 255
+              : 0.22 + 0.3 * (0.5 + 0.5 * Math.sin(Date.now() / 380 + i * 0.9)) * (0.6 + 0.4 * Math.sin(Date.now() / 160 + i * 2.1));
+            const bh = Math.max(0.18 * r.height, Math.min(1, v) * r.height);
+            const x = i * (barW + barGap);
+            const y = r.height - bh;
+            sctx.shadowColor = 'rgba(103, 65, 217, 0.85)';
+            sctx.shadowBlur = r.height * 0.35;
+            const grad = sctx.createLinearGradient(0, y, 0, r.height);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(0.35, '#ffffff');
+            grad.addColorStop(1, '#6741d9');
+            sctx.fillStyle = grad;
+            const rad = Math.min(barW / 2, r.height * 0.18);
+            if (sctx.roundRect) {
+              sctx.beginPath();
+              sctx.roundRect(x, y, barW, bh, rad);
+              sctx.fill();
+            } else {
+              sctx.fillRect(x, y + rad, barW, bh - rad);
+              sctx.beginPath();
+              sctx.arc(x + rad, y + rad, rad, Math.PI, 0, false);
+              sctx.fill();
+              sctx.beginPath();
+              sctx.arc(x + barW - rad, y + rad, rad, Math.PI, 0, true);
+              sctx.fill();
+            }
+          }
+        };
+        const loop = () => {
+          if (gc.classList.contains('is-open')) draw();
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+      }
     }
 
   });
