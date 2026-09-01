@@ -48,8 +48,8 @@ import FlowDiagram from './FlowDiagram.astro';
       <span class="progress-time-current">0:00</span>
       <span class="progress-time-total">0:00</span>
     </div>
-    <div class="progress-bar" aria-hidden="true"><div class="progress-fill"></div></div>
-    <input type="range" class="volume-slider" min="0" max="1" step="0.02" value="1" aria-label="Громкость" />
+    <div class="progress-hit"><div class="progress-bar" aria-hidden="true"><div class="progress-fill"></div></div></div>
+    <div class="volume-hit"><input type="range" class="volume-slider" min="0" max="1" step="0.02" value="1" aria-label="Громкость" /></div>
   </div>
 </section>
 </div>
@@ -345,22 +345,32 @@ import FlowDiagram from './FlowDiagram.astro';
     text-shadow: 0 0 0.4cqw rgba(0, 0, 0, 0.85);
     pointer-events: none;
   }
-  .progress-bar {
+  .progress-hit {
     position: absolute;
     left: 14%;
     right: 14%;
-    bottom: 16cqw;
+    bottom: 15.2cqw;
+    height: 3.2cqw;
+    pointer-events: none;
+    touch-action: none;
+    z-index: 2;
+  }
+  #gc.is-open .progress-hit {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .progress-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.8cqw;
     height: 1.6cqw;
     border-radius: 1cqw;
     background: rgba(0, 0, 0, 0.7);
     box-shadow: 0 0 0.9cqw var(--branch-glow, rgba(103, 65, 217, 0.85)), 0 0 0.35cqw var(--branch-glow-soft, rgba(103, 65, 217, 0.7));
     overflow: hidden;
-    cursor: pointer;
     user-select: none;
     pointer-events: none;
-  }
-  #gc.is-open .progress-bar {
-    pointer-events: auto;
   }
   .progress-fill {
     height: 100%;
@@ -369,12 +379,24 @@ import FlowDiagram from './FlowDiagram.astro';
     background: rgba(255, 255, 255, 0.9);
     transition: width 0.25s linear;
   }
-  .volume-slider {
+  .volume-hit {
     position: absolute;
     left: 14%;
     right: 24%;
-    bottom: 8cqw;
-    width: 62%;
+    bottom: 7.2cqw;
+    height: 3.2cqw;
+    pointer-events: none;
+    touch-action: none;
+    z-index: 3;
+  }
+  #gc.is-open .volume-hit {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .volume-slider {
+    position: absolute;
+    inset: 0.8cqw 0;
+    width: 100%;
     -webkit-appearance: none;
     appearance: none;
     height: 1.6cqw;
@@ -382,12 +404,8 @@ import FlowDiagram from './FlowDiagram.astro';
     background: rgba(0, 0, 0, 0.7);
     box-shadow: 0 0 0.9cqw var(--branch-glow, rgba(103, 65, 217, 0.85)), 0 0 0.35cqw var(--branch-glow-soft, rgba(103, 65, 217, 0.7));
     outline: none;
-    cursor: pointer;
     pointer-events: none;
     z-index: 2;
-  }
-  #gc.is-open .volume-slider {
-    pointer-events: auto;
   }
   .volume-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -1286,7 +1304,30 @@ import FlowDiagram from './FlowDiagram.astro';
     }
 
     const progressFill = gc.querySelector('.progress-fill');
-    const progressBar = gc.querySelector('.progress-bar');
+    const volumeHit = gc.querySelector('.volume-hit');
+    if (volumeHit && volumeSlider) {
+      const volFromClientX = (x: number) => {
+        const r = volumeHit.getBoundingClientRect();
+        let v = (x - r.left) / r.width;
+        v = Math.max(0, Math.min(1, v));
+        volumeSlider.value = String(Math.round(v * 50) / 50);
+        volumeSlider.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      let volDragging = false;
+      volumeHit.addEventListener('pointerdown', (e) => {
+        volDragging = true;
+        volumeHit.setPointerCapture(e.pointerId);
+        volFromClientX(e.clientX);
+      });
+      volumeHit.addEventListener('pointermove', (e) => {
+        if (volDragging) volFromClientX(e.clientX);
+      });
+      const endVol = () => { volDragging = false; };
+      volumeHit.addEventListener('pointerup', endVol);
+      volumeHit.addEventListener('pointercancel', endVol);
+    }
+
+    const progressHit = gc.querySelector('.progress-hit');
     const timeCurrent = gc.querySelector('.progress-time-current');
     const timeTotal = gc.querySelector('.progress-time-total');
     const fmtTime = (s: number) => {
@@ -1312,10 +1353,10 @@ import FlowDiagram from './FlowDiagram.astro';
         if (timeCurrent) timeCurrent.textContent = '0:00';
       });
     }
-    if (progressBar && progressFill) {
+    if (progressHit && progressFill) {
       const seekFromClientX = (x: number) => {
         if (!audio.duration) return;
-        const r = progressBar.getBoundingClientRect();
+        const r = progressHit.getBoundingClientRect();
         let t = (x - r.left) / r.width;
         t = Math.max(0, Math.min(1, t));
         audio.currentTime = t * audio.duration;
@@ -1323,17 +1364,17 @@ import FlowDiagram from './FlowDiagram.astro';
         if (timeCurrent) timeCurrent.textContent = fmtTime(audio.currentTime);
       };
       let scrubbing = false;
-      progressBar.addEventListener('pointerdown', (e) => {
+      progressHit.addEventListener('pointerdown', (e) => {
         scrubbing = true;
-        progressBar.setPointerCapture(e.pointerId);
+        progressHit.setPointerCapture(e.pointerId);
         seekFromClientX(e.clientX);
       });
-      progressBar.addEventListener('pointermove', (e) => {
+      progressHit.addEventListener('pointermove', (e) => {
         if (scrubbing) seekFromClientX(e.clientX);
       });
       const endScrub = () => { scrubbing = false; };
-      progressBar.addEventListener('pointerup', endScrub);
-      progressBar.addEventListener('pointercancel', endScrub);
+      progressHit.addEventListener('pointerup', endScrub);
+      progressHit.addEventListener('pointercancel', endScrub);
     }
 
     const spectrum = gc.querySelector('.spectrum-canvas') as HTMLCanvasElement | null;
