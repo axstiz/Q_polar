@@ -29,7 +29,6 @@ import FlowDiagram from './FlowDiagram.astro';
     <img class="reveal-img reveal-img--back" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
     <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
   </div>
-  <div class="spkr"><span></span><span></span><span></span><span></span></div>
   <button class="btn btn-arrow btn-dpad-up" data-action="up" aria-label="Вверх"><img src="/Q_polar/приставка/вверх.png" alt="" /></button>
   <button class="btn btn-arrow btn-dpad-left" data-action="left" aria-label="Влево"><img src="/Q_polar/приставка/влево.png" alt="" /></button>
   <button class="btn btn-arrow btn-dpad-right" data-action="right" aria-label="Вправо"><img src="/Q_polar/приставка/вправо.png" alt="" /></button>
@@ -59,7 +58,6 @@ import FlowDiagram from './FlowDiagram.astro';
     --screen-left: calc(-17.23% - var(--screen-dx));
     --screen-w: 134.27%;
     --screen-h: 54.47%;
-    --spkr-bottom: 3.92%;
     --reveal-w: calc(1524 / 1036 * 100% * 1.1 * 0.98 * 1.01 * 0.995 * 1.002);
     --reveal-top: calc(var(--screen-top) + 2%);
     position: relative;
@@ -374,6 +372,26 @@ import FlowDiagram from './FlowDiagram.astro';
   .screen-reveal .reveal-img--front { z-index: 2; transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease; }
   #gc.is-open .screen-reveal .reveal-img--back { opacity: 1; transform: translateY(55%); }
   #gc.is-open .screen-reveal .reveal-img--front { opacity: 1; transform: translateY(88%); }
+  .spkr {
+    position: absolute;
+    left: 50%;
+    bottom: var(--spkr-bottom);
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    gap: 0.39cqw;
+    justify-content: center;
+    z-index: 0;
+  }
+  .spkr span {
+    width: 6px;
+    width: 0.58cqw;
+    height: 18px;
+    height: 1.74cqw;
+    border-radius: 2px;
+    border-radius: 0.19cqw;
+    background: #5b5b6b;
+  }
   .spkr {
     position: absolute;
     left: 50%;
