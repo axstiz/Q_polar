@@ -11,6 +11,20 @@ import FlowDiagram from './FlowDiagram.astro';
   <div class="poem-on-screen" aria-hidden="true"></div>
   <div class="screen-mask" aria-hidden="true"></div>
   <div class="selected-title" aria-hidden="true"></div>
+  <div class="qr-view">
+    <a class="qr-item is-active" href="https://axstiz.github.io/Q_polar/" target="_blank" rel="noopener">
+      <img class="qr-img" src="/Q_polar/QRs/qr-code_Q-polar.svg" alt="Q-polar" />
+      <span class="qr-caption">Q-polar</span>
+    </a>
+    <a class="qr-item" href="https://t.me/litsummericore" target="_blank" rel="noopener">
+      <img class="qr-img" src="/Q_polar/QRs/qr-code_TG.svg" alt="Telegram" />
+      <span class="qr-caption">TG-channel</span>
+    </a>
+  </div>
+  <div class="qr-message" aria-hidden="true">
+    Для открытия QR кодов,
+    <br />выйдите из расширенного вида стихотворения
+  </div>
   <div class="screen-reveal" aria-hidden="true">
     <img class="reveal-img reveal-img--back" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
     <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
@@ -126,6 +140,100 @@ import FlowDiagram from './FlowDiagram.astro';
   }
   #gc.is-open .screen-mask {
     height: 60.02%;
+  }
+  #gc.is-qr .screen {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #gc.is-qr .selected-title {
+    opacity: 0;
+  }
+  .qr-view {
+    position: absolute;
+    top: calc(9.13% - var(--screen-dy));
+    left: calc(50% - var(--screen-dx));
+    width: 68.73%;
+    height: 33.52%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    padding: 4%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    pointer-events: none;
+  }
+  #gc.is-qr:not(.is-open) .qr-view {
+    display: flex;
+  }
+  .qr-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+  .qr-item {
+    position: relative;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    pointer-events: all;
+    cursor: pointer;
+  }
+  .qr-item.is-active {
+    display: flex;
+    animation: qrFadeIn 0.45s ease;
+  }
+  @keyframes qrFadeIn {
+    from { opacity: 0; transform: scale(0.94); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .qr-item:hover .qr-img {
+    filter: brightness(0.92);
+  }
+  .qr-caption {
+    position: absolute;
+    right: 0.75cqw;
+    bottom: -1.2cqw;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.6cqw;
+    color: #2d2d2d;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 6px rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+  .qr-message {
+    position: absolute;
+    top: calc(9.13% - var(--screen-dy));
+    left: calc(50% - var(--screen-dx));
+    width: 68.73%;
+    height: 60.02%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    padding: 8%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 8;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.6cqw;
+    line-height: 1.8;
+    color: #ffffff;
+    text-shadow:
+      0.15cqw 0.15cqw 0 #e03131,
+      0.3cqw 0.3cqw 0 rgba(103, 65, 217, 0.9),
+      0 0 1cqw rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #gc.is-qr.is-open .qr-message {
+    opacity: 1;
   }
   .selected-title {
     position: absolute;
@@ -706,6 +814,16 @@ import FlowDiagram from './FlowDiagram.astro';
     machine.subscribe(apply);
 
     const press = (e: KeyboardEvent) => {
+      if (gc.classList.contains('is-qr')) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          if (gc.classList.contains('is-open')) closeReveal();
+          else exitQr();
+          return;
+        }
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) { e.preventDefault(); if (!gc.classList.contains('is-open')) stepQr(1); return; }
+        return;
+      }
       if (gc.classList.contains('is-open')) {
         if (e.key === 'Escape') { e.preventDefault(); closeReveal(); }
         return;
@@ -779,6 +897,12 @@ import FlowDiagram from './FlowDiagram.astro';
     }
     function act(btn) {
       const action = btn.dataset.action;
+      if (action === 'top') { toggleQR(); return; }
+      if (gc.classList.contains('is-qr') && !gc.classList.contains('is-open')) {
+        if (['up', 'down', 'left', 'right'].includes(action)) { stepQr(1); return; }
+        if (action === 'enter2') { exitQr(); return; }
+        return;
+      }
       if (gc.classList.contains('is-open') && ['up', 'down', 'left', 'right', 'open', 'zoom'].includes(action)) return;
       if (action === 'up') machine.up();
       else if (action === 'left') machine.left();
@@ -789,7 +913,6 @@ import FlowDiagram from './FlowDiagram.astro';
       else if (action === 'small1') pauseMusic();
       else if (action === 'small2') playMusic();
       else if (action === 'zoom') toggleZoom();
-      // 'top' и любые новые — пока не назначены: без действия
     }
     function pulse(btn) {
       btn.classList.remove('pressed');
@@ -831,6 +954,29 @@ import FlowDiagram from './FlowDiagram.astro';
     }
     function closeReveal() {
       gc.classList.remove('is-open');
+    }
+
+    const qrItems = Array.from(gc.querySelectorAll('.qr-item'));
+    let qrOn = false;
+    let qrIndex = 0;
+    function renderQr() {
+      qrItems.forEach((item, i) => item.classList.toggle('is-active', i === qrIndex));
+    }
+    function stepQr(dir: number) {
+      if (qrItems.length === 0) return;
+      qrIndex = (qrIndex + dir + qrItems.length) % qrItems.length;
+      renderQr();
+    }
+    function toggleQR() {
+      if (qrOn) { exitQr(); return; }
+      qrOn = true;
+      qrIndex = 0;
+      renderQr();
+      gc.classList.add('is-qr');
+    }
+    function exitQr() {
+      qrOn = false;
+      gc.classList.remove('is-qr');
     }
 
     gc.querySelectorAll('.btn').forEach(btn => {
