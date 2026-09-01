@@ -281,9 +281,9 @@ import FlowDiagram from './FlowDiagram.astro';
   }
   .lower-block {
     position: absolute;
-    right: 0;
+    right: 2cqw;
     bottom: 0;
-    width: 40.8cqw;
+    width: 38.8cqw;
     aspect-ratio: 895 / 1200;
     transform: translate(-12cqw, -120cqw);
     opacity: 1;
@@ -353,7 +353,7 @@ import FlowDiagram from './FlowDiagram.astro';
     height: 1.6cqw;
     border-radius: 1cqw;
     background: rgba(0, 0, 0, 0.7);
-    box-shadow: 0 0 0.9cqw rgba(103, 65, 217, 0.85), 0 0 0.35cqw rgba(103, 65, 217, 0.7);
+    box-shadow: 0 0 0.9cqw var(--branch-glow, rgba(103, 65, 217, 0.85)), 0 0 0.35cqw var(--branch-glow-soft, rgba(103, 65, 217, 0.7));
     overflow: hidden;
     cursor: pointer;
     user-select: none;
@@ -380,7 +380,7 @@ import FlowDiagram from './FlowDiagram.astro';
     height: 1.6cqw;
     border-radius: 1cqw;
     background: rgba(0, 0, 0, 0.7);
-    box-shadow: 0 0 0.9cqw rgba(103, 65, 217, 0.85), 0 0 0.35cqw rgba(103, 65, 217, 0.7);
+    box-shadow: 0 0 0.9cqw var(--branch-glow, rgba(103, 65, 217, 0.85)), 0 0 0.35cqw var(--branch-glow-soft, rgba(103, 65, 217, 0.7));
     outline: none;
     cursor: pointer;
     pointer-events: none;
@@ -395,7 +395,7 @@ import FlowDiagram from './FlowDiagram.astro';
     width: 3.4cqw;
     height: 3.4cqw;
     border-radius: 50%;
-    background: #6741d9;
+    background: var(--branch-color, #6741d9);
     opacity: 0.7;
     border: 0.3cqw solid #2d2d2d;
     box-shadow: 0 0 1.1cqw rgba(255, 255, 255, 0.95), 0 0 0.4cqw rgba(255, 255, 255, 0.7);
@@ -405,7 +405,7 @@ import FlowDiagram from './FlowDiagram.astro';
     width: 3.4cqw;
     height: 3.4cqw;
     border-radius: 50%;
-    background: #6741d9;
+    background: var(--branch-color, #6741d9);
     opacity: 0.7;
     border: 0.3cqw solid #2d2d2d;
     box-shadow: 0 0 1.1cqw rgba(255, 255, 255, 0.95), 0 0 0.4cqw rgba(255, 255, 255, 0.7);
@@ -930,6 +930,28 @@ import FlowDiagram from './FlowDiagram.astro';
     const machine = new NavigationMachine();
     let current: string | null = null;
 
+    const BRANCH_COLORS: Record<string, string> = {
+      top: '#e03131',
+      bottom: '#6741d9',
+      shared: '#6741d9',
+    };
+    let accent = '#6741d9';
+    function hexToRgba(hex: string, a: number): string {
+      const m = hex.replace('#', '');
+      const r = parseInt(m.slice(0, 2), 16);
+      const g = parseInt(m.slice(2, 4), 16);
+      const b = parseInt(m.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+    function setAccent(id: string) {
+      const p = getPoem(id);
+      const c = (p && BRANCH_COLORS[p.branch]) || '#6741d9';
+      accent = c;
+      gc.style.setProperty('--branch-color', c);
+      gc.style.setProperty('--branch-glow', hexToRgba(c, 0.85));
+      gc.style.setProperty('--branch-glow-soft', hexToRgba(c, 0.7));
+    }
+
     const ZOOM_FACTOR = 2.5;
     const BASE_SCALE = 0.6156;
     const zoomState = { scale: BASE_SCALE, tx: 0, ty: 0 };
@@ -1020,6 +1042,7 @@ import FlowDiagram from './FlowDiagram.astro';
         titleEl.textContent = display;
         titleEl.classList.toggle('has-title', !!display);
       }
+      setAccent(node);
       if (zoomOn) {
         setAnimated(false);
         centerOn(node);
@@ -1168,11 +1191,6 @@ import FlowDiagram from './FlowDiagram.astro';
       btn.classList.add('pressed');
       setTimeout(() => btn.classList.remove('pressed'), 220);
     }
-    const BRANCH_COLORS: Record<string, string> = {
-      top: '#e03131',
-      bottom: '#6741d9',
-      shared: '#6741d9',
-    };
     const poemEl = gc.querySelector('.poem-on-screen');
     function renderPoem(id) {
       const p = getPoem(id);
@@ -1362,12 +1380,12 @@ import FlowDiagram from './FlowDiagram.astro';
             const bh = Math.max(0.18 * r.height, Math.min(1, v) * r.height);
             const x = i * (barW + barGap);
             const y = r.height - bh;
-            sctx.shadowColor = 'rgba(103, 65, 217, 0.85)';
+            sctx.shadowColor = hexToRgba(accent, 0.85);
             sctx.shadowBlur = r.height * 0.35;
             const grad = sctx.createLinearGradient(0, y, 0, r.height);
             grad.addColorStop(0, '#ffffff');
             grad.addColorStop(0.35, '#ffffff');
-            grad.addColorStop(1, '#6741d9');
+            grad.addColorStop(1, accent);
             sctx.fillStyle = grad;
             const rad = Math.min(barW / 2, r.height * 0.18);
             if (sctx.roundRect) {
