@@ -141,7 +141,7 @@ const base = import.meta.env.BASE_URL;
       (function () {
         const overlay = document.getElementById('pageLoader');
         if (!overlay) return;
-        const MIN_MS = 2000;
+        const MIN_MS = 500;
         const started = Date.now();
 
         function reveal() {
