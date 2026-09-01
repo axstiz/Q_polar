@@ -30,10 +30,10 @@ import FlowDiagram from './FlowDiagram.astro';
     <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
   </div>
   <div class="spkr"><span></span><span></span><span></span><span></span></div>
-  <button class="btn btn-dpad-up" data-action="up" aria-label="Вверх"><img src="/Q_polar/приставка/вверх.png" alt="" /></button>
-  <button class="btn btn-dpad-left" data-action="left" aria-label="Влево"><img src="/Q_polar/приставка/влево.png" alt="" /></button>
-  <button class="btn btn-dpad-right" data-action="right" aria-label="Вправо"><img src="/Q_polar/приставка/вправо.png" alt="" /></button>
-  <button class="btn btn-dpad-down" data-action="down" aria-label="Вниз"><img src="/Q_polar/приставка/вниз.png" alt="" /></button>
+  <button class="btn btn-arrow btn-dpad-up" data-action="up" aria-label="Вверх"><img src="/Q_polar/приставка/вверх.png" alt="" /></button>
+  <button class="btn btn-arrow btn-dpad-left" data-action="left" aria-label="Влево"><img src="/Q_polar/приставка/влево.png" alt="" /></button>
+  <button class="btn btn-arrow btn-dpad-right" data-action="right" aria-label="Вправо"><img src="/Q_polar/приставка/вправо.png" alt="" /></button>
+  <button class="btn btn-arrow btn-dpad-down" data-action="down" aria-label="Вниз"><img src="/Q_polar/приставка/вниз.png" alt="" /></button>
   <button class="btn btn-big-1" data-action="open" aria-label="Большая 1"><img src="/Q_polar/приставка/большая 1.png" alt="" /></button>
   <button class="btn btn-big-2" data-action="zoom" aria-label="Большая 2"><img src="/Q_polar/приставка/большая 2.png" alt="" /></button>
       <button class="btn btn-small-1" data-action="small1" aria-label="Пауза"><img src="/Q_polar/приставка/маленькая 1.png" alt="" /></button>
@@ -465,6 +465,11 @@ import FlowDiagram from './FlowDiagram.astro';
     filter: grayscale(0.85);
     transition: opacity 0.25s ease, filter 0.25s ease;
   }
+  .btn-arrow.disabled {
+    opacity: 0.45;
+    filter: grayscale(0.85);
+    transition: opacity 0.25s ease, filter 0.25s ease;
+  }
 </style>
 
 <script>
@@ -809,6 +814,17 @@ import FlowDiagram from './FlowDiagram.astro';
         applyZoomTransform();
         scheduleAnimOff();
       }
+      updateArrowGlow();
+    };
+
+    const updateArrowGlow = () => {
+      const qrActive = gc.classList.contains('is-qr') && !gc.classList.contains('is-open');
+      const blockAll = gc.classList.contains('is-open');
+      gc.querySelectorAll('.btn-arrow').forEach((b) => {
+        const dir = b.dataset.action;
+        const ok = blockAll ? false : (qrActive ? true : machine.canMove(dir));
+        b.classList.toggle('disabled', !ok);
+      });
     };
 
     machine.subscribe(apply);
@@ -896,6 +912,7 @@ import FlowDiagram from './FlowDiagram.astro';
       audio.pause();
     }
     function act(btn) {
+      if (btn.classList.contains('disabled')) return;
       const action = btn.dataset.action;
       if (action === 'top') { toggleQR(); return; }
       if (gc.classList.contains('is-qr') && !gc.classList.contains('is-open')) {
@@ -951,9 +968,11 @@ import FlowDiagram from './FlowDiagram.astro';
       gc.classList.remove('is-open');
       void gc.offsetWidth;
       gc.classList.add('is-open');
+      updateArrowGlow();
     }
     function closeReveal() {
       gc.classList.remove('is-open');
+      updateArrowGlow();
     }
 
     const qrItems = Array.from(gc.querySelectorAll('.qr-item'));
@@ -973,10 +992,12 @@ import FlowDiagram from './FlowDiagram.astro';
       qrIndex = 0;
       renderQr();
       gc.classList.add('is-qr');
+      updateArrowGlow();
     }
     function exitQr() {
       qrOn = false;
       gc.classList.remove('is-qr');
+      updateArrowGlow();
     }
 
     gc.querySelectorAll('.btn').forEach(btn => {
@@ -984,6 +1005,7 @@ import FlowDiagram from './FlowDiagram.astro';
       if (img) loadAlpha(img.src);
       let held = false;
       btn.addEventListener('pointerdown', (e) => {
+        if (btn.classList.contains('disabled')) return;
         if (img && !isOpaque(img, e.clientX, e.clientY)) return;
         held = true;
         btn.classList.add('held');
@@ -998,7 +1020,12 @@ import FlowDiagram from './FlowDiagram.astro';
       btn.addEventListener('pointerleave', () => { held = false; btn.classList.remove('held'); });
       btn.addEventListener('pointercancel', () => { held = false; btn.classList.remove('held'); });
       btn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(btn); pulse(btn); }
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (btn.classList.contains('disabled')) return;
+          act(btn);
+          pulse(btn);
+        }
       });
     });
 

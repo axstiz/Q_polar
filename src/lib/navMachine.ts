@@ -111,12 +111,10 @@ export class NavigationMachine {
   // ── Переходы ────────────────────────────────────────────────────
   /** Нажать → (right) */
   right(): boolean {
-    const node = map[this._current];
-    if (!node) return false;
-    const rightTarget = node.right ?? (OVERRIDE_RIGHT[this._current] ?? this.rightDefaultChild(this._current));
-    if (rightTarget && rightTarget !== 'none') {
+    const target = this.targetFor('right');
+    if (target) {
       this.pushHistory();
-      this._current = rightTarget;
+      this._current = target;
       this.notify();
       return true;
     }
@@ -125,7 +123,7 @@ export class NavigationMachine {
 
   /** Нажать ← (left) */
   left(): boolean {
-    const target = this.prevOf(this._current);
+    const target = this.targetFor('left');
     if (target) {
       this.history.push(this._current);
       this._current = target;
@@ -137,9 +135,9 @@ export class NavigationMachine {
 
   /** Нажать ↑ */
   up(): boolean {
-    const node = map[this._current];
-    if (node?.up !== undefined && node.up !== 'none') {
-      this._current = node.up as NodeId;
+    const target = this.targetFor('up');
+    if (target) {
+      this._current = target;
       this.notify();
       return true;
     }
@@ -148,13 +146,18 @@ export class NavigationMachine {
 
   /** Нажать ↓ */
   down(): boolean {
-    const node = map[this._current];
-    if (node?.down !== undefined && node.down !== 'none') {
-      this._current = node.down as NodeId;
+    const target = this.targetFor('down');
+    if (target) {
+      this._current = target;
       this.notify();
       return true;
     }
     return false;
+  }
+
+  /** Можно ли перейти по направлению dir (не меняя состояние) */
+  canMove(dir: 'up' | 'down' | 'left' | 'right'): boolean {
+    return this.targetFor(dir) !== undefined;
   }
 
   /** Открыть текущий стих */
@@ -188,6 +191,24 @@ export class NavigationMachine {
   // ── Внутренние ─────────────────────────────────────────────────
   private notify(): void {
     for (const l of this.listeners) l(this._current);
+  }
+
+  /** Чистая логика цели перехода (без мутаций состояния) */
+  private targetFor(dir: 'up' | 'down' | 'left' | 'right'): NodeId | undefined {
+    const node = map[this._current];
+    if (dir === 'up') {
+      return (node?.up !== undefined && node.up !== 'none') ? node.up as NodeId : undefined;
+    }
+    if (dir === 'down') {
+      return (node?.down !== undefined && node.down !== 'none') ? node.down as NodeId : undefined;
+    }
+    if (dir === 'left') {
+      return this.prevOf(this._current);
+    }
+    const rightTarget = node?.right !== undefined
+      ? node.right
+      : (OVERRIDE_RIGHT[this._current] ?? this.rightDefaultChild(this._current));
+    return (rightTarget && rightTarget !== 'none') ? rightTarget as NodeId : undefined;
   }
 
   pushHistory(): void {
