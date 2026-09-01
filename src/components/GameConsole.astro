@@ -1410,7 +1410,7 @@ import FlowDiagram from './FlowDiagram.astro';
           sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           sctx.clearRect(0, 0, r.width, r.height);
           const inset = r.width * 0.04;
-          const live = analyser && !audio.paused && audio.volume > 0;
+          const live = !!analyser;
           if (live) {
             const n = analyser!.frequencyBinCount;
             if (freq.length !== n) freq = new Uint8Array(n);
@@ -1442,10 +1442,7 @@ import FlowDiagram from './FlowDiagram.astro';
               else if (n > 0.94) n = 0.94;
             } else {
               const t = i / (WAVE_N - 1);
-              n = 0.5
-                + 0.07 * Math.sin(Date.now() / 480 + t * Math.PI * 2)
-                + 0.04 * Math.sin(Date.now() / 200 + t * Math.PI * 4)
-                + 0.03 * Math.sin(Date.now() / 90 + t * Math.PI * 6);
+              n = 0.5 - 1.7 * (1 - t) * t;
             }
             const x = inset + i * stepX;
             const y = center + (0.5 - n) * 2 * amp;
