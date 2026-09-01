@@ -40,6 +40,16 @@ import FlowDiagram from './FlowDiagram.astro';
       <button class="btn btn-small-2" data-action="small2" aria-label="Воспроизвести"><img src="/Q_polar/приставка/маленькая 2.png" alt="" /></button>
   <button class="btn btn-horizontal" data-action="enter2" aria-label="Enter"><img src="/Q_polar/приставка/горизонтальная.png" alt="" /></button>
   <button class="btn btn-top-solo" data-action="top" aria-label="Верхняя"><img src="/Q_polar/приставка/верхняя соло.png" alt="" /></button>
+  <div class="lower-block">
+    <img src="/Q_polar/приставка/нижний блок.png" alt="" aria-hidden="true" />
+    <svg class="volume-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="#ffffff" /><path d="M16 8.5a4 4 0 0 1 0 7" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" /><path d="M18.5 6a7 7 0 0 1 0 12" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" /></svg>
+    <div class="progress-times" aria-hidden="true">
+      <span class="progress-time-current">0:00</span>
+      <span class="progress-time-total">0:00</span>
+    </div>
+    <div class="progress-bar" aria-hidden="true"><div class="progress-fill"></div></div>
+    <input type="range" class="volume-slider" min="0" max="1" step="0.02" value="1" aria-label="Громкость" />
+  </div>
 </section>
 </div>
 <style>
@@ -267,6 +277,121 @@ import FlowDiagram from './FlowDiagram.astro';
     font-size: 5.4cqw;
     line-height: 1;
     color: #2d2d2d;
+  }
+  .lower-block {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 40.8cqw;
+    aspect-ratio: 895 / 1200;
+    transform: translate(-12cqw, -120cqw);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+    transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease 0.6s;
+  }
+  .lower-block img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    opacity: 0.8;
+  }
+.volume-icon {
+    position: absolute;
+    right: 5cqw;
+    bottom: 7.3cqw;
+    width: 3.2cqw;
+    height: 3.2cqw;
+    pointer-events: none;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 0.4cqw rgba(255, 255, 255, 0.6));
+  }
+.progress-times {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: 18.6cqw;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.4cqw;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 0 0.4cqw rgba(0, 0, 0, 0.85);
+    pointer-events: none;
+  }
+  .progress-bar {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: 16cqw;
+    height: 1.6cqw;
+    border-radius: 1cqw;
+    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0.9cqw rgba(103, 65, 217, 0.85), 0 0 0.35cqw rgba(103, 65, 217, 0.7);
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: none;
+  }
+  #gc.is-open .progress-bar {
+    pointer-events: auto;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 1cqw;
+    background: rgba(255, 255, 255, 0.9);
+    transition: width 0.25s linear;
+  }
+  .volume-slider {
+    position: absolute;
+    left: 14%;
+    right: 24%;
+    bottom: 8cqw;
+    width: 62%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 1.6cqw;
+    border-radius: 1cqw;
+    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0.9cqw rgba(103, 65, 217, 0.85), 0 0 0.35cqw rgba(103, 65, 217, 0.7);
+    outline: none;
+    cursor: pointer;
+    pointer-events: none;
+    z-index: 2;
+  }
+  #gc.is-open .volume-slider {
+    pointer-events: auto;
+  }
+  .volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 3.4cqw;
+    height: 3.4cqw;
+    border-radius: 50%;
+    background: #6741d9;
+    opacity: 0.7;
+    border: 0.3cqw solid #2d2d2d;
+    box-shadow: 0 0 1.1cqw rgba(255, 255, 255, 0.95), 0 0 0.4cqw rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+  }
+  .volume-slider::-moz-range-thumb {
+    width: 3.4cqw;
+    height: 3.4cqw;
+    border-radius: 50%;
+    background: #6741d9;
+    opacity: 0.7;
+    border: 0.3cqw solid #2d2d2d;
+    box-shadow: 0 0 1.1cqw rgba(255, 255, 255, 0.95), 0 0 0.4cqw rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+  }
+  #gc.is-open .lower-block {
+    transform: translate(0, -16cqw);
+    opacity: 1;
+    transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.9s, opacity 0.3s ease 0.9s;
   }
   #gc .selected-title.has-title {
     opacity: 1;
@@ -1093,6 +1218,64 @@ import FlowDiagram from './FlowDiagram.astro';
         }
       });
     });
+
+    const volumeSlider = gc.querySelector('.volume-slider');
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', () => {
+        audio.volume = Number(volumeSlider.value);
+      });
+    }
+
+    const progressFill = gc.querySelector('.progress-fill');
+    const progressBar = gc.querySelector('.progress-bar');
+    const timeCurrent = gc.querySelector('.progress-time-current');
+    const timeTotal = gc.querySelector('.progress-time-total');
+    const fmtTime = (s: number) => {
+      if (!Number.isFinite(s) || s < 0) s = 0;
+      const m = Math.floor(s / 60);
+      const ss = Math.floor(s % 60);
+      return `${m}:${ss < 10 ? '0' : ''}${ss}`;
+    };
+    if (progressFill) {
+      audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+          progressFill.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+        }
+        if (timeCurrent) timeCurrent.textContent = fmtTime(audio.currentTime);
+      });
+      audio.addEventListener('loadedmetadata', () => {
+        progressFill.style.width = '0%';
+        if (timeCurrent) timeCurrent.textContent = '0:00';
+        if (timeTotal) timeTotal.textContent = fmtTime(audio.duration);
+      });
+      audio.addEventListener('ended', () => {
+        progressFill.style.width = '0%';
+        if (timeCurrent) timeCurrent.textContent = '0:00';
+      });
+    }
+    if (progressBar && progressFill) {
+      const seekFromClientX = (x: number) => {
+        if (!audio.duration) return;
+        const r = progressBar.getBoundingClientRect();
+        let t = (x - r.left) / r.width;
+        t = Math.max(0, Math.min(1, t));
+        audio.currentTime = t * audio.duration;
+        progressFill.style.width = `${t * 100}%`;
+        if (timeCurrent) timeCurrent.textContent = fmtTime(audio.currentTime);
+      };
+      let scrubbing = false;
+      progressBar.addEventListener('pointerdown', (e) => {
+        scrubbing = true;
+        progressBar.setPointerCapture(e.pointerId);
+        seekFromClientX(e.clientX);
+      });
+      progressBar.addEventListener('pointermove', (e) => {
+        if (scrubbing) seekFromClientX(e.clientX);
+      });
+      const endScrub = () => { scrubbing = false; };
+      progressBar.addEventListener('pointerup', endScrub);
+      progressBar.addEventListener('pointercancel', endScrub);
+    }
 
   });
 </script>
