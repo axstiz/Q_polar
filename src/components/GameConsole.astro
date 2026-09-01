@@ -1162,7 +1162,7 @@ import FlowDiagram from './FlowDiagram.astro';
         const src = ctx.createMediaElementSource(audio);
         const node = ctx.createAnalyser();
         node.fftSize = 256;
-        node.smoothingTimeConstant = 0.6;
+        node.smoothingTimeConstant = 0.3;
         src.connect(node);
         node.connect(ctx.destination);
         analyser = node;
@@ -1381,15 +1381,23 @@ import FlowDiagram from './FlowDiagram.astro';
     if (spectrum && spectrum.getContext) {
       const sctx = spectrum.getContext('2d');
       if (sctx) {
-        const BARS = 16;
+        const WAVE_N = 56;
         let freq = new Uint8Array(0);
-        const binOf = (i: number) => {
+        let fast = new Float32Array(WAVE_N);
+        const binOf = (i: number, count: number = WAVE_N) => {
           const n = analyser ? analyser.frequencyBinCount : 64;
           const lo = Math.log(20), hi = Math.log(12000);
-          const t = Math.pow((i + 0.5) / BARS, 1.35);
+          const t = 0.849 + 0.151 * Math.pow((i + 0.5) / count, 1.35);
           const f = Math.exp(lo + (hi - lo) * t);
           return Math.min(n - 1, Math.max(0, Math.round(f / (analyser ? analyser.context.sampleRate : 44100) * n)));
         };
+        const bandW = new Float32Array(WAVE_N);
+        const taper = new Float32Array(WAVE_N);
+        for (let i = 0; i < WAVE_N; i++) {
+          const t = i / (WAVE_N - 1);
+          bandW[i] = 0.55 + 0.45 * Math.pow(t, 0.8);
+          taper[i] = Math.pow(Math.sin(t * Math.PI), 0.7);
+        }
         const draw = () => {
           const r = spectrum.getBoundingClientRect();
           const dpr = window.devicePixelRatio || 1;
@@ -1402,13 +1410,6 @@ import FlowDiagram from './FlowDiagram.astro';
           sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           sctx.clearRect(0, 0, r.width, r.height);
           const inset = r.width * 0.04;
-          let barGap = r.width * 0.05;
-          let barW = (r.width - inset * 2 - barGap * (BARS - 1)) / BARS;
-          if (barW < 1.5) {
-            barW = 1.5;
-            barGap = BARS > 1 ? (r.width - inset * 2 - BARS * barW) / (BARS - 1) : 0;
-            if (barGap < 0) barGap = 0;
-          }
           const live = analyser && !audio.paused && audio.volume > 0;
           if (live) {
             const n = analyser!.frequencyBinCount;
@@ -1423,36 +1424,48 @@ import FlowDiagram from './FlowDiagram.astro';
             return `rgb(${Math.round(r + (255 - r) * k)}, ${Math.round(g + (255 - g) * k)}, ${Math.round(b + (255 - b) * k)})`;
           };
           const gradTop = mix(accent, 0.55);
-          const gradMid = mix(accent, 0.32);
-          for (let i = 0; i < BARS; i++) {
-            const v = live
-              ? Math.pow(freq[binOf(i)] / 255, 1.4) * 0.85
-              : 0.08 + 0.12 * (0.5 + 0.5 * Math.sin(Date.now() / 380 + i * 0.9)) * (0.6 + 0.4 * Math.sin(Date.now() / 160 + i * 2.1));
-            const bh = Math.max(0.05 * r.height, Math.min(1, v) * r.height);
-            const x = inset + i * (barW + barGap);
-            const y = r.height - bh;
-            sctx.shadowColor = hexToRgba(accent, 0.7);
-            sctx.shadowBlur = r.height * 0.22;
-            const grad = sctx.createLinearGradient(0, y, 0, r.height);
-            grad.addColorStop(0, gradTop);
-            grad.addColorStop(0.3, gradMid);
-            grad.addColorStop(1, accent);
-            sctx.fillStyle = grad;
-            const rad = Math.min(barW / 2, r.height * 0.18);
-            if (sctx.roundRect) {
-              sctx.beginPath();
-              sctx.roundRect(x, y, barW, bh, rad);
-              sctx.fill();
+          const center = r.height * 0.5;
+          const amp = r.height * 0.36;
+          const stepX = (r.width - inset * 2) / (WAVE_N - 1);
+          const pts: number[][] = [];
+          for (let i = 0; i < WAVE_N; i++) {
+            let n: number;
+            if (live) {
+              const t = i / (WAVE_N - 1);
+              const raw = bandW[i] * Math.pow(freq[binOf(i)] / 255, 0.9);
+              fast[i] += (raw - fast[i]) * 0.15;
+              const flux = raw - fast[i];
+              const dev = (Math.tanh((raw - 0.42) * 2.2) * 0.55 + flux * 2.0) * taper[i];
+              n = 0.5 + dev;
+              if (i === 0 || i === WAVE_N - 1) n = 0.5;
+              if (n < 0.06) n = 0.06;
+              else if (n > 0.94) n = 0.94;
             } else {
-              sctx.fillRect(x, y + rad, barW, bh - rad);
-              sctx.beginPath();
-              sctx.arc(x + rad, y + rad, rad, Math.PI, 0, false);
-              sctx.fill();
-              sctx.beginPath();
-              sctx.arc(x + barW - rad, y + rad, rad, Math.PI, 0, true);
-              sctx.fill();
+              const t = i / (WAVE_N - 1);
+              n = 0.5
+                + 0.07 * Math.sin(Date.now() / 480 + t * Math.PI * 2)
+                + 0.04 * Math.sin(Date.now() / 200 + t * Math.PI * 4)
+                + 0.03 * Math.sin(Date.now() / 90 + t * Math.PI * 6);
             }
+            const x = inset + i * stepX;
+            const y = center + (0.5 - n) * 2 * amp;
+            pts.push([x, y]);
           }
+          sctx.shadowColor = hexToRgba(accent, 0.75);
+          sctx.shadowBlur = r.height * 0.2;
+          sctx.lineWidth = Math.max(1.5, r.width * 0.008);
+          sctx.lineCap = 'round';
+          sctx.lineJoin = 'round';
+          sctx.strokeStyle = gradTop;
+          sctx.beginPath();
+          sctx.moveTo(pts[0][0], pts[0][1]);
+          for (let i = 1; i < WAVE_N - 1; i++) {
+            const xc = (pts[i][0] + pts[i + 1][0]) / 2;
+            const yc = (pts[i][1] + pts[i + 1][1]) / 2;
+            sctx.quadraticCurveTo(pts[i][0], pts[i][1], xc, yc);
+          }
+          sctx.lineTo(pts[WAVE_N - 1][0], pts[WAVE_N - 1][1]);
+          sctx.stroke();
         };
         const loop = () => {
           if (gc.classList.contains('is-open')) draw();
