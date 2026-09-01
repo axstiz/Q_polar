@@ -270,9 +270,11 @@ import FlowDiagram from './FlowDiagram.astro';
   }
   #gc .selected-title.has-title {
     opacity: 1;
+    transition: opacity 0.3s ease 0.7s, transform 0.3s ease;
   }
   #gc.is-open .selected-title {
     opacity: 0;
+    transition: opacity 0.3s ease;
   }
   #gc.is-open .screen {
     opacity: 0;
@@ -492,7 +494,8 @@ import FlowDiagram from './FlowDiagram.astro';
   .btn-horizontal { left: -6.12%; top: 83.25%; width: 53.87%; height: 8.17%; }
   .btn-top-solo { left: 12.98%; top: 47.89%; width: 10.71%; height: 5.13%; }
   #gc.is-open .btn-big-1,
-  #gc.is-open .btn-big-2 {
+  #gc.is-open .btn-big-2,
+  #gc.is-open .btn-top-solo {
     opacity: 0.45;
     filter: grayscale(0.85);
     transition: opacity 0.25s ease, filter 0.25s ease;
