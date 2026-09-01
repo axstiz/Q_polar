@@ -29,6 +29,7 @@ import FlowDiagram from './FlowDiagram.astro';
     <img class="reveal-img reveal-img--back" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
     <img class="reveal-img reveal-img--front" src="/Q_polar/приставка/обрезанный экран.png" alt="" />
   </div>
+  <div class="age-label" aria-hidden="true">18+</div>
   <button class="btn btn-arrow btn-dpad-up" data-action="up" aria-label="Вверх"><img src="/Q_polar/приставка/вверх.png" alt="" /></button>
   <button class="btn btn-arrow btn-dpad-left" data-action="left" aria-label="Влево"><img src="/Q_polar/приставка/влево.png" alt="" /></button>
   <button class="btn btn-arrow btn-dpad-right" data-action="right" aria-label="Вправо"><img src="/Q_polar/приставка/вправо.png" alt="" /></button>
@@ -253,6 +254,19 @@ import FlowDiagram from './FlowDiagram.astro';
     text-align: center;
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .age-label {
+    position: absolute;
+    left: calc(50% + 0.45cqw);
+    top: 2.5cqw;
+    transform: translateX(-50%) rotate(-6deg);
+    z-index: 2;
+    pointer-events: none;
+    user-select: none;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 5.4cqw;
+    line-height: 1;
+    color: #2d2d2d;
   }
   #gc .selected-title.has-title {
     opacity: 1;
