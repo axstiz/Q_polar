@@ -178,7 +178,6 @@ const base = import.meta.env.BASE_URL;
         const gc = document.getElementById('gc');
         if (!svg || !gc) return;
         const NS = 'http://www.w3.org/2000/svg';
-        const PITCH = 64;
         const GRAD = ['#e03131', '#9775fa', '#6741d9'];
 
         function paint() {
@@ -210,7 +209,10 @@ const base = import.meta.env.BASE_URL;
           const baseH = Math.max(r.height, 1);
           const baseR = Math.min(baseW, baseH) * 0.22;
 
-          for (let expand = PITCH; expand <= W; expand += PITCH) {
+          let expand = 14;
+          let step = 14;
+          const GROW = 1.12;
+          while (expand <= W) {
             const x = r.left - expand;
             const y = r.top - expand;
             const w = baseW + expand * 2;
@@ -232,6 +234,9 @@ const base = import.meta.env.BASE_URL;
             rect.setAttribute('stroke-linecap', 'round');
             rect.setAttribute('opacity', opacity.toFixed(3));
             svg.appendChild(rect);
+
+            expand += step;
+            step *= GROW;
           }
         }
 
