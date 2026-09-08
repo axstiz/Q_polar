@@ -208,7 +208,7 @@ const base = import.meta.env.BASE_URL;
           const r = gc.getBoundingClientRect();
           const baseW = Math.max(r.width, 1);
           const baseH = Math.max(r.height, 1);
-          const baseR = Math.min(baseW, baseH) * 0.16;
+          const baseR = Math.min(baseW, baseH) * 0.22;
 
           for (let expand = PITCH; expand <= W; expand += PITCH) {
             const x = r.left - expand;
