@@ -15,6 +15,8 @@ const base = import.meta.env.BASE_URL;
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Permanent+Marker&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <svg class="bg-pattern" id="bgPattern" aria-hidden="true"></svg>
+
     <div class="loader-overlay" id="pageLoader" aria-hidden="true">
       <div class="loader-curtain loader-curtain--top"></div>
       <div class="loader-curtain loader-curtain--bottom"></div>
@@ -36,6 +38,15 @@ const base = import.meta.env.BASE_URL;
     </style>
 
     <style is:inline>
+      .bg-pattern {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+        overflow: hidden;
+      }
       .loader-overlay {
         position: fixed;
         inset: 0;
@@ -159,6 +170,74 @@ const base = import.meta.env.BASE_URL;
         } else {
           window.addEventListener('load', reveal, { once: true });
         }
+      })();
+    </script>
+    <script>
+      (function () {
+        const svg = document.getElementById('bgPattern');
+        const gc = document.getElementById('gc');
+        if (!svg || !gc) return;
+        const NS = 'http://www.w3.org/2000/svg';
+        const PITCH = 64;
+        const GRAD = ['#e03131', '#9775fa', '#6741d9'];
+
+        function paint() {
+          const W = Math.max(1, window.innerWidth);
+          const H = Math.max(1, window.innerHeight);
+          svg.setAttribute('width', W);
+          svg.setAttribute('height', H);
+          svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+          svg.textContent = '';
+
+          const defs = document.createElementNS(NS, 'defs');
+          const lg = document.createElementNS(NS, 'linearGradient');
+          lg.id = 'bp-grad';
+          lg.setAttribute('x1', '0');
+          lg.setAttribute('y1', '0');
+          lg.setAttribute('x2', '1');
+          lg.setAttribute('y2', '1');
+          [['0', GRAD[0]], ['0.55', GRAD[1]], ['1', GRAD[2]]].forEach(function (st) {
+            const s = document.createElementNS(NS, 'stop');
+            s.setAttribute('offset', st[0]);
+            s.setAttribute('stop-color', st[1]);
+            lg.appendChild(s);
+          });
+          defs.appendChild(lg);
+          svg.appendChild(defs);
+
+          const r = gc.getBoundingClientRect();
+          const baseW = Math.max(r.width, 1);
+          const baseH = Math.max(r.height, 1);
+          const baseR = Math.min(baseW, baseH) * 0.055;
+
+          for (let expand = PITCH; expand <= W; expand += PITCH) {
+            const x = r.left - expand;
+            const y = r.top - expand;
+            const w = baseW + expand * 2;
+            const h = baseH + expand * 2;
+            if (w <= 0 || h <= 0) continue;
+            const t = expand / W;
+            const opacity = 0.5 * (1 - t);
+            if (opacity <= 0.02) break;
+            const rect = document.createElementNS(NS, 'rect');
+            rect.setAttribute('x', x);
+            rect.setAttribute('y', y);
+            rect.setAttribute('width', w);
+            rect.setAttribute('height', h);
+            rect.setAttribute('rx', baseR * (w / baseW));
+            rect.setAttribute('fill', 'none');
+            rect.setAttribute('stroke', 'url(#bp-grad)');
+            rect.setAttribute('stroke-width', '2');
+            rect.setAttribute('stroke-dasharray', (10 + expand * 0.04).toFixed(1) + ' ' + (22 + expand * 0.22).toFixed(1));
+            rect.setAttribute('stroke-linecap', 'round');
+            rect.setAttribute('opacity', opacity.toFixed(3));
+            svg.appendChild(rect);
+          }
+        }
+
+        paint();
+        window.addEventListener('resize', paint);
+        window.addEventListener('orientationchange', paint);
       })();
     </script>
   </body>
