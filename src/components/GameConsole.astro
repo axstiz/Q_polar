@@ -608,7 +608,7 @@ import FlowDiagram from './FlowDiagram.astro';
     outline: none;
     margin: 0;
     transform-origin: center;
-    transition: transform 0.09s ease-out;
+    transition: transform 0.3s ease-out, filter 0.3s ease-out;
   }
   .btn img {
     width: 100%;
@@ -635,10 +635,10 @@ import FlowDiagram from './FlowDiagram.astro';
     100% { transform: scale(1); }
   }
   .btn.pressed {
-    animation: btnPulse 0.2s ease-out;
+    filter: drop-shadow(0 0 8px rgba(103, 65, 217, 0.6));
   }
   .btn.pressed img {
-    filter: brightness(0.7) drop-shadow(0 0 8px rgba(103, 65, 217, 0.95));
+    filter: brightness(0.85);
   }
   .btn.held {
     transform: scale(0.9);
